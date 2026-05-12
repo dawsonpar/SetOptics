@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "setoptics"
+version = "0.1.0"
+description = "Volleyball rally detection pipelines (signal, VideoMAE, ensemble, Gemini)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Dawson Par" }
+]
+keywords = ["volleyball", "video", "rally-detection", "computer-vision", "agents"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "opencv-python>=4.9.0",
+    "numpy>=1.26.0",
+    "supervision>=0.27.0",
+    "av>=12.0.0",
+    "librosa>=0.10.1",
+    "moviepy>=1.0.3",
+    "scipy>=1.11.0",
+    "ultralytics>=8.0.0",
+    "torch>=2.0.0",
+    "google-genai>=1.0.0",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0",
+    "python-dateutil>=2.8.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4.4"]
+
+[project.urls]
+Homepage = "https://github.com/dawsonpar/SetOptics"
+Issues = "https://github.com/dawsonpar/SetOptics/issues"
+
+[tool.setuptools.packages.find]
+include = ["setoptics*"]
+exclude = ["tests*", "scripts*", "tools*", "docs*", "models*"]

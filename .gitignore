@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtualenvs
+.venv/
+venv/
+env/
+
+# Environment files
+.env
+.env.local
+tools/shared/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# User data (never commit footage or annotations)
+data/
+*.mp4
+*.mov
+*.mkv
+*.avi
+*_annotations.json
+*_annotations_corrected.json
+*_raw_annotations.json
+*_segments.json
+*_signal.json
+*_ensemble.json
+
+# Model outputs / runs
+runs/
+wandb/
+*.pt
+!models/volleyball_yolo26n.pt
+
+# Build artifacts
+build/
+dist/

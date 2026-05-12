@@ -1,0 +1,42 @@
+# LLM Video Annotation Configuration
+# Uses Gemini Files API for native video understanding
+
+# Model provider configuration
+provider: google
+
+# Provider-specific settings
+google:
+  api_key: ${GOOGLE_API_KEY}
+  model: gemini-3-flash-preview
+  max_tokens: 65536
+  thinking_budget: 8192
+  media_resolution: low  # low=280 tok/img, medium=560, high=1120
+
+# Video encoding (applied before upload)
+encoding:
+  crf: 32
+  scale: "1280:720"
+
+# Chunking settings
+chunking:
+  chunk_duration_sec: 600  # 10-minute chunks
+
+# Evaluation videos (indoor full-length games with ground truth)
+# Rebuilt 2026-04-21 after 2026-04-14 data-loss incident destroyed the
+# prior set (old indoor-game-001/003/007/008 are gone). New videos are
+# sourced from data/rally-gt/need-annotation/ — mapping is tracked in
+# docs/ground-truth-mapping.md.
+eval_videos:
+  - indoor-game-001
+  - indoor-game-002
+  - indoor-game-003
+  - indoor-game-004
+
+# Paths (relative to project root)
+samples_dir: ../../data/rally-gt
+output_dir: ./annotations
+
+# Output settings
+output:
+  directory: ./annotations
+  save_raw_responses: true

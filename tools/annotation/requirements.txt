@@ -1,0 +1,6 @@
+# Annotation workflow deps. These are a subset of the top-level
+# requirements.txt; install that one instead unless you only want
+# the annotation tools.
+pyyaml>=6.0
+python-dotenv>=1.0.0
+google-genai>=1.0.0

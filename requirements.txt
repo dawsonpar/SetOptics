@@ -1,0 +1,28 @@
+# SetOptics rally detection (open source) dependencies.
+# Pinned to known-good ranges. Use a Python 3.11 venv.
+
+# Computer vision
+opencv-python>=4.9.0
+numpy>=1.26.0
+supervision>=0.27.0
+
+# Audio / video decoding
+av>=12.0.0
+librosa>=0.10.1
+moviepy>=1.0.3
+scipy>=1.11.0
+
+# Deep learning (YOLO, VideoMAE inference)
+ultralytics>=8.0.0
+torch>=2.0.0
+
+# LLM annotation
+google-genai>=1.0.0
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# Utilities
+python-dateutil>=2.8.2
+
+# Dev
+pytest>=7.4.4
