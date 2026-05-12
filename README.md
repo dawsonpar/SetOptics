@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="assets/logo.png#gh-light-mode-only" alt="SetOptics" width="200" />
+  <img src="assets/logo-white.png#gh-dark-mode-only" alt="SetOptics" width="200" />
+</p>
+
 # SetOptics
 
 Volleyball rally detection for any agent harness (Claude Code, Cursor, Codex,
@@ -125,6 +130,14 @@ features).
 ## License
 
 Apache 2.0. See [`LICENSE`](LICENSE).
+
+## Trademark
+
+"SetOptics" and the SetOptics logo (the eye-with-volleyball-iris mark) are
+trademarks of Dawson Par. The Apache 2.0 license covers the code in this
+repository only; it does not grant permission to use the name or logo on
+derivative products or services. Forks are welcome, but please rename your
+project and remove or replace the logo if you distribute it as your own.
 
 ## Roadmap
 
