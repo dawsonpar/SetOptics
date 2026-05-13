@@ -33,12 +33,26 @@ git clone https://github.com/dawsonpar/SetOptics.git
 cd SetOptics
 ./setup.sh                          # creates .venv, installs deps, prompts for GEMINI_API_KEY
 source .venv/bin/activate
+
+# 1. Detect rallies (writes JSON segments)
 python scripts/signal_rally_detector.py \
     --video path/to/your/footage.mp4 \
     --output path/to/output.json
+
+# 2. Export a rallies-only MP4 (skips the dead time)
+python scripts/export_rallies.py \
+    --segments path/to/output.json \
+    --video path/to/your/footage.mp4 \
+    --output path/to/footage_rallies.mp4
 ```
 
-Output is a JSON file listing in-play segments by start/end milliseconds.
+Step 1 produces a JSON file listing in-play segments by start/end
+milliseconds. Step 2 turns that JSON into an MP4 containing only the
+rallies, concatenated back to back, with the breaks cut out.
+
+Want to drive this with an agent instead? See
+[`docs/agent-quickstart.md`](docs/agent-quickstart.md) for a single prompt
+you can paste into Claude Code / Codex / Cursor / Gemini.
 
 ## Repository layout
 
@@ -55,6 +69,7 @@ scripts/          Standalone CLI entry points (research-grade)
   infer_rally_detector.py    VideoMAE inference (requires user-trained weights)
   signal_rally_evaluate.py
   ensemble_rally_evaluate.py
+  export_rallies.py          JSON segments + video → rallies-only MP4
   train_volleyball_yolo.py
   validate_ball_tracking.py
 tools/            Annotation and evaluation tooling

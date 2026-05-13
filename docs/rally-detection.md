@@ -103,3 +103,30 @@ python tools/annotation/eval_sliding_window.py FOOTAGE.mp4  # runs detection + e
 
 All evaluators report F1 at IoU >= 0.5 (primary) plus a center-mode
 boundary-tolerance grid (±0.5s, ±1s, ±2s, ±5s).
+
+## Exporting a rallies-only video
+
+Every detector above outputs JSON segments. To turn that JSON into an MP4
+that contains only the rallies (breaks removed), use `export_rallies.py`:
+
+```bash
+python scripts/export_rallies.py \
+    --segments FOOTAGE_signal.json \
+    --video FOOTAGE.mp4 \
+    --output FOOTAGE_rallies.mp4
+```
+
+The script reads any rally-detection JSON (signal, ensemble, or LLM
+annotation output) and concatenates only the in-play segments.
+
+| Flag | Default | What it does |
+|------|---------|--------------|
+| `--mode accurate` | (default) | Re-encodes via ffmpeg filter_complex. Exact ms-aligned boundaries. ~real-time speed. |
+| `--mode fast` | | Stream-copy via ffmpeg concat demuxer. ~10x faster. Boundaries snap to the nearest keyframe (drift up to ~2s). |
+| `--pad SECONDS` | `0.0` | Add this much padding before and after each rally. |
+| `--min-rally-sec SECONDS` | `0.0` | Drop rallies shorter than this. |
+| `--output PATH` | `<video-stem>_rallies.mp4` | Output path. |
+
+Requires `ffmpeg` and `ffprobe` on PATH. Both are installed by `setup.sh`'s
+prerequisite check on macOS (`brew install ffmpeg`) and Linux
+(`apt-get install ffmpeg`).

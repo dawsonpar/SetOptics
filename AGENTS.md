@@ -51,6 +51,23 @@ python scripts/ensemble_rally_detector.py --video FOOTAGE.mp4 --output OUT.json 
 python tools/annotation/annotate_sliding_window.py FOOTAGE.mp4   # LLM path
 ```
 
+### Export a rallies-only video
+
+Detection writes JSON segments. To produce an MP4 that contains only the
+rallies (breaks cut out), pipe the JSON through `export_rallies.py`:
+
+```bash
+python scripts/export_rallies.py \
+    --segments OUT.json --video FOOTAGE.mp4 \
+    --output FOOTAGE_rallies.mp4
+```
+
+Default mode (`--mode accurate`) re-encodes for exact rally boundaries.
+Use `--mode fast` for ~10x speed via stream copy (boundaries snap to the
+nearest keyframe, can drift up to ~2s). Add `--pad 0.5` to include a
+half-second of context before/after each rally. Requires `ffmpeg` on PATH
+(already a setup.sh requirement).
+
 ### Evaluate a detector against ground truth
 
 ```bash
