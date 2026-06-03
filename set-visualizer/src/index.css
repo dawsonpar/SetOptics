@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #0a0a0f;
+  color: #f0f0ff;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 300;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .glass {
+    @apply rounded-2xl border border-white/10 bg-surface/80 backdrop-blur-xl shadow-glass;
+  }
+  .pill {
+    @apply rounded-full border border-white/10 bg-surface-light/70 px-3.5 py-2
+           font-mono text-[12px] text-white/80 transition
+           hover:border-accent/40 hover:text-white;
+  }
+  .pill-active {
+    @apply border-accent/70 bg-accent/15 text-white shadow-glow;
+  }
+}

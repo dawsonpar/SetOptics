@@ -49,3 +49,13 @@ wandb/
 # Build artifacts
 build/
 dist/
+
+# Node (set-visualizer web app). No trailing slash so the local
+# node_modules symlink is ignored too, not just real directories.
+node_modules
+set-visualizer/dev.log
+set-visualizer/npm-install.log
+.playwright-mcp/
+
+# Claude Code local config + worktrees (never commit)
+.claude/
