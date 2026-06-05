@@ -19,7 +19,8 @@ export function App() {
           <TopBar />
         </div>
 
-        <div className="pointer-events-auto absolute left-1/2 top-20 -translate-x-1/2">
+        {/* left on mobile (clears the collections toggle), centered on desktop */}
+        <div className="pointer-events-auto absolute left-4 top-20 sm:left-1/2 sm:-translate-x-1/2">
           <ViewSwitch />
         </div>
 
@@ -27,11 +28,11 @@ export function App() {
           <CollectionsPanel />
         </div>
 
-        <div className="absolute inset-x-0 bottom-5 flex flex-col items-center gap-3">
-          <div className="pointer-events-auto">
+        <div className="absolute inset-x-0 bottom-4 flex flex-col items-center gap-2 px-2 sm:bottom-5 sm:gap-3">
+          <div className="pointer-events-auto max-w-full">
             <PresetBar />
           </div>
-          <div className="pointer-events-auto">
+          <div className="pointer-events-auto max-w-full">
             <PlayBar />
           </div>
         </div>
