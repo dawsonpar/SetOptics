@@ -33,8 +33,10 @@ const FRAMINGS: Record<ViewMode, Framing> = {
   },
 }
 const PADDING = 1.08
-const MIN_ZOOM = 0.45 // closest (zoomed in)
-const MAX_ZOOM = 2.4 // farthest (zoomed out)
+// zoom = 1 already fits the whole court, so allow plenty of zoom-IN for detail
+// but only a little zoom-OUT (more than that just shrinks the court off-screen).
+const MIN_ZOOM = 0.4 // closest (zoomed in)
+const MAX_ZOOM = 1.3 // farthest (a little margin past the fit)
 
 function fitDistance(f: Framing, aspect: number, fovDeg: number): number {
   const tanHalf = Math.tan((fovDeg * Math.PI) / 180 / 2)
@@ -54,20 +56,48 @@ export function CameraRig() {
   const zoom = useRef(1)
   const prevView = useRef<ViewMode>(view)
 
-  // Scroll to zoom in the fixed views. Orbit keeps OrbitControls' native zoom.
+  // Zoom in the fixed views: scroll wheel (desktop) and two-finger pinch
+  // (touch). Orbit keeps OrbitControls' native zoom/pinch.
   useEffect(() => {
     const el = gl.domElement
-    const onWheel = (e: WheelEvent) => {
-      if (useStore.getState().view === 'orbit') return
-      e.preventDefault()
-      zoom.current = THREE.MathUtils.clamp(
-        zoom.current * Math.exp(e.deltaY * 0.0015),
-        MIN_ZOOM,
-        MAX_ZOOM,
-      )
+    const isFixed = () => useStore.getState().view !== 'orbit'
+    const applyZoom = (factor: number) => {
+      zoom.current = THREE.MathUtils.clamp(zoom.current * factor, MIN_ZOOM, MAX_ZOOM)
     }
+
+    const onWheel = (e: WheelEvent) => {
+      if (!isFixed()) return
+      e.preventDefault()
+      applyZoom(Math.exp(e.deltaY * 0.0015))
+    }
+
+    let pinchLast = 0
+    const pinchDist = (t: TouchList) =>
+      Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2 && isFixed()) pinchLast = pinchDist(e.touches)
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length !== 2 || !isFixed()) return
+      e.preventDefault()
+      const d = pinchDist(e.touches)
+      if (pinchLast > 0 && d > 0) applyZoom(pinchLast / d) // spread fingers = zoom in
+      pinchLast = d
+    }
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) pinchLast = 0
+    }
+
     el.addEventListener('wheel', onWheel, { passive: false })
-    return () => el.removeEventListener('wheel', onWheel)
+    el.addEventListener('touchstart', onTouchStart, { passive: false })
+    el.addEventListener('touchmove', onTouchMove, { passive: false })
+    el.addEventListener('touchend', onTouchEnd)
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove', onTouchMove)
+      el.removeEventListener('touchend', onTouchEnd)
+    }
   }, [gl])
 
   useFrame(() => {
