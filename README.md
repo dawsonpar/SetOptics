@@ -54,6 +54,10 @@ Want to drive this with an agent instead? See
 [`docs/agent-quickstart.md`](docs/agent-quickstart.md) for a single prompt
 you can paste into Claude Code / Codex / Cursor / Gemini.
 
+Using Claude Code inside this repo? Just run
+`/setoptics-detect path/to/footage.mp4` — the bundled skill picks the right
+script, runs detection, and can export the rallies-only MP4 in one go.
+
 ## Repository layout
 
 ```
