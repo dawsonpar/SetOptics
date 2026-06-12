@@ -13,6 +13,15 @@ This repository is the open-source release of the rally-detection layer of
 SetOptics. The hosted product (auth, billing, web UI) is closed-source; the
 detection pipelines are here in full.
 
+## 3D Set Visualizer
+
+An interactive 3D tool for mapping setter distribution and hitter
+tendencies on the court. Built to replace the pen-and-paper court
+diagrams players and coaches scribble during matches.
+
+Live at **[3d-set-visualizer.vercel.app](https://3d-set-visualizer.vercel.app)**.
+Source in [`set-visualizer/`](set-visualizer/).
+
 ## What's in the box
 
 | Mode | Method | Speed | Accuracy | Cost |
