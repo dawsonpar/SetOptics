@@ -10,6 +10,25 @@ The agent has shell access on a machine with `git`, `python3.11+`, and
 `ffmpeg` already installed. (The agent will install Python packages
 itself via `./setup.sh`.)
 
+## Claude Code: use the bundled skill
+
+If your agent is Claude Code and the repo is already cloned, skip the prompt
+below — the repo ships a skill at `.claude/skills/setoptics-detect/`:
+
+```
+/setoptics-detect path/to/footage.mp4 --mode signal --export
+```
+
+It handles venv setup, mode selection (`signal`/`ensemble`/`llm`), and the
+rallies-only MP4 export. To make the command available outside this repo,
+copy the skill directory into `~/.claude/skills/`:
+
+```bash
+cp -r .claude/skills/setoptics-detect ~/.claude/skills/
+```
+
+Other harnesses (Cursor, Codex, Aider, Gemini) use the prompt below.
+
 ## The one-shot prompt
 
 ```text

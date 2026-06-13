@@ -57,5 +57,6 @@ set-visualizer/dev.log
 set-visualizer/npm-install.log
 .playwright-mcp/
 
-# Claude Code local config + worktrees (never commit)
-.claude/
+# Claude Code local config + worktrees (never commit), except shipped skills
+.claude/*
+!.claude/skills/
