@@ -59,6 +59,23 @@ python tools/annotation/annotate_fast.py FOOTAGE.mp4
 Reads `tools/annotation/config.yaml` for prompt and model selection. Edit
 that file, not the script.
 
+## Review and correction with the annotation tool
+
+The repo ships a desktop annotation tool at `tools/annotation-ui/`. From a
+fresh clone:
+
+```bash
+cd tools/annotation-ui
+npm run local
+```
+
+That one command installs deps and launches the app. Drag in a video, pick
+**Start from scratch** (no Python or API key needed) or **Run Detection**
+(optional Gemini draft), correct the rally boundaries on the timeline
+(`1` = in-play, `2` = break, `B` = split), and export
+`<video>_annotations_corrected.json`. See
+[`tools/annotation-ui/README.md`](../tools/annotation-ui/README.md).
+
 ## Review and correction with Label Studio
 
 The repo does not ship a Label Studio config; the format is simple

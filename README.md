@@ -63,6 +63,21 @@ Want to drive this with an agent instead? See
 [`docs/agent-quickstart.md`](docs/agent-quickstart.md) for a single prompt
 you can paste into Claude Code / Codex / Cursor / Gemini.
 
+## Annotating footage
+
+Want to label rallies yourself or build ground-truth data? The repo ships a
+desktop annotation tool. From a fresh clone:
+
+```bash
+cd tools/annotation-ui
+npm run local
+```
+
+One command installs and launches it; annotate fully by hand (no Python or
+API key) or start from an optional AI draft. See
+[`tools/annotation-ui/README.md`](tools/annotation-ui/README.md) and
+[`docs/annotation.md`](docs/annotation.md).
+
 ## Repository layout
 
 ```
