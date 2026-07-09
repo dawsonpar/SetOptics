@@ -12,6 +12,13 @@ export function TopBar() {
         </span>
       </div>
       <div className="pointer-events-auto flex shrink-0 gap-2">
+        <a
+          href="https://www.setoptics.com/visualizer"
+          title="Save your sets and analyze your real footage on SetOptics"
+          className="pill hidden sm:inline-block"
+        >
+          Open on SetOptics ↗
+        </a>
         <button onClick={resetSet} className="pill">Reset</button>
         <ShareButton />
       </div>

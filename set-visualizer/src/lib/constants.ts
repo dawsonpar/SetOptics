@@ -3,7 +3,7 @@
 
 export const COURT_WIDTH = 10 // X spans [-5, 5]
 export const HALF_DEPTH = 10 // Z spans [0, 10], net at Z = 0
-export const NET_HEIGHT = 2.43 // TODO verify against NACIVT rulebook
+export const NET_HEIGHT = 2.35 // NACIVT 9-man net (235cm); indoor 6s men is 2.43
 export const NET_BODY_HEIGHT = 1.8 // net mesh hangs this far below the tape
 export const NET_BOTTOM = NET_HEIGHT - NET_BODY_HEIGHT
 export const NET_BAND = 0.1 // visual net tape thickness
