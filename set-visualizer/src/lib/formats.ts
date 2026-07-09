@@ -15,6 +15,7 @@ export type Format = {
   netHalfWidth: number // net body extends ~0.5m past the antennas
   poleX: number // posts sit outside the sidelines
   attackLine: number | null // meters off the net; null = no line (beach)
+  playersPerSide: number // consumed by the attacker/passer/blocker layers (2b+)
   presetLabel: string
   defaultPresetKey: string // what Reset returns to in this format
 }
@@ -29,6 +30,7 @@ export const FORMATS: Record<FormatKey, Format> = {
     netHalfWidth: 5.5,
     poleX: 6,
     attackLine: 3,
+    playersPerSide: 9,
     presetLabel: '9-man sets',
     defaultPresetKey: 'tball',
   },
@@ -41,6 +43,7 @@ export const FORMATS: Record<FormatKey, Format> = {
     netHalfWidth: 5,
     poleX: 5.5,
     attackLine: 3,
+    playersPerSide: 6,
     presetLabel: '6s sets',
     defaultPresetKey: '31',
   },
