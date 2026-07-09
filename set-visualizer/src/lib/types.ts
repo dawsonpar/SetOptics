@@ -1,3 +1,5 @@
+import type { FormatKey } from './formats'
+
 export type Vec3 = { x: number; y: number; z: number }
 
 export type ViewMode = 'front' | 'side' | 'orbit'
@@ -15,6 +17,7 @@ export type SetState = {
 export type SavedSet = SetState & {
   id: string
   name: string
+  format?: FormatKey // absent on pre-format saves; treated as 9-man
 }
 
 export type Collection = {

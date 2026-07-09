@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { ContactShadows } from '@react-three/drei'
-import { BRAND, HALF_DEPTH } from '../lib/constants'
+import { BRAND, STAGE_HALF_DEPTH } from '../lib/constants'
 import { Court } from './Court'
 import { Net } from './Net'
 import { ArcLine } from './ArcLine'
@@ -41,7 +41,7 @@ export function Scene() {
       <PeakHandle />
 
       <ContactShadows
-        position={[0, 0.02, HALF_DEPTH / 2]}
+        position={[0, 0.02, STAGE_HALF_DEPTH / 2]}
         scale={26}
         resolution={1024}
         blur={2.4}

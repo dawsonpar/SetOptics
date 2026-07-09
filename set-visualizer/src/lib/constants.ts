@@ -1,29 +1,25 @@
-// Court + scene constants. Units are meters.
-// 9-man court is 10 x 20m; the setter operates in one 10 x 10m half.
+// Scene + brand constants. Units are meters.
+// Court/net dimensions are per-format and live in formats.ts; this file keeps
+// what is format-independent: the fixed camera stage, arc physics bounds, net
+// visual proportions, and the brand palette.
 
-export const COURT_WIDTH = 10 // X spans [-5, 5]
-export const HALF_DEPTH = 10 // Z spans [0, 10], net at Z = 0
-export const NET_HEIGHT = 2.35 // NACIVT 9-man net (235cm); indoor 6s men is 2.43
-export const NET_BODY_HEIGHT = 1.8 // net mesh hangs this far below the tape
-export const NET_BOTTOM = NET_HEIGHT - NET_BODY_HEIGHT
-export const NET_BAND = 0.1 // visual net tape thickness
 export const CONTACT_HEIGHT = 2.2 // setter hands height (ball start)
 
-// Net hardware. Antennas sit above the sidelines (X = +/-5); poles are 1m
-// outside the sidelines; antenna rises 80cm above the net (1.8m total).
-export const POLE_X = 6
-export const NET_HALF_WIDTH = 5.5 // net body extends ~0.5m past the antennas
-export const ANTENNA_X = COURT_WIDTH / 2 // 5, on the sidelines
-export const ANTENNA_ABOVE = 0.8
-export const ANTENNA_TOTAL = 1.8
+// Net visual proportions (heights come from the active format).
+export const NET_BODY_HEIGHT = 1.8 // net mesh hangs this far below the tape
+export const NET_BAND = 0.1 // visual net tape thickness
+export const ANTENNA_ABOVE = 0.8 // antenna rises this far above the tape
 export const ANTENNA_BAND = 0.2 // visual stripe height
 
-export const X_MIN = -COURT_WIDTH / 2
-export const X_MAX = COURT_WIDTH / 2
+// Drag bounds that are about arc physics, not court size.
 export const Z_MIN = 0.2 // keep markers off the exact net line
-export const Z_MAX = HALF_DEPTH
 export const Y_MIN = 0
 export const Y_MAX = 7 // generous ceiling for high arcs
+
+// The outer box: the camera stage is sized once for the largest court
+// (9-man, 10m deep half) and never changes between formats — courts scale
+// within it. CameraRig framings assume this value.
+export const STAGE_HALF_DEPTH = 10
 
 // SetOptics brand
 export const BRAND = {

@@ -1,28 +1,36 @@
 import { Line } from '@react-three/drei'
-import { BRAND, HALF_DEPTH, X_MAX, X_MIN } from '../lib/constants'
+import { BRAND } from '../lib/constants'
+import { FORMATS } from '../lib/formats'
+import { useStore } from '../state/store'
 
-// Half-court floor (the setter's side) with boundary + attack lines.
+// Half-court floor (the setter's side) with boundary + attack lines, sized by
+// the active format. The camera stage is constant; the court scales within it.
 export function Court() {
+  const format = useStore((s) => FORMATS[s.format])
+  const xMax = format.courtWidth / 2
+  const xMin = -xMax
   const z0 = 0
-  const z1 = HALF_DEPTH
-  const attackZ = 3 // attack line ~3m off the net
+  const z1 = format.halfDepth
 
   const rect: [number, number, number][] = [
-    [X_MIN, 0.01, z0], [X_MAX, 0.01, z0], [X_MAX, 0.01, z1],
-    [X_MIN, 0.01, z1], [X_MIN, 0.01, z0],
-  ]
-  const attack: [number, number, number][] = [
-    [X_MIN, 0.01, attackZ], [X_MAX, 0.01, attackZ],
+    [xMin, 0.01, z0], [xMax, 0.01, z0], [xMax, 0.01, z1],
+    [xMin, 0.01, z1], [xMin, 0.01, z0],
   ]
 
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, HALF_DEPTH / 2]} receiveShadow>
-        <planeGeometry args={[X_MAX - X_MIN, HALF_DEPTH]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, format.halfDepth / 2]} receiveShadow>
+        <planeGeometry args={[format.courtWidth, format.halfDepth]} />
         <meshStandardMaterial color={BRAND.court} roughness={0.95} metalness={0} />
       </mesh>
       <Line points={rect} color={BRAND.courtLine} lineWidth={2} />
-      <Line points={attack} color={BRAND.courtLine} lineWidth={1.5} />
+      {format.attackLine !== null && (
+        <Line
+          points={[[xMin, 0.01, format.attackLine], [xMax, 0.01, format.attackLine]]}
+          color={BRAND.courtLine}
+          lineWidth={1.5}
+        />
+      )}
     </group>
   )
 }
