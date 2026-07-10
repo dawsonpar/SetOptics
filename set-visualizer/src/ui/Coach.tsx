@@ -5,7 +5,7 @@ const STEPS = [
   { title: 'Drag the setter & ball', body: 'Drag the blue setter and the yellow ball destination on the court to place where the set starts and ends.' },
   { title: 'Shape the arc', body: 'Drag the glowing peak up or down to change the height of the set. It stays centered on the path so the arc always looks realistic.' },
   { title: 'Front vs Side', body: 'Front view edits left/right and height. Side view edits depth off the net and height. Switch views with Shift+1 (front), Shift+2 (side), Shift+3 (orbit).' },
-  { title: 'Play it', body: 'Press Space (or the play button) to watch the ball fly the set. Adjust speed for tempo. Pick a format and load a preset to start fast.' },
+  { title: 'Play it', body: 'Press Space (or the play button) to watch the ball fly the set. Adjust speed for tempo. Tap the arrow above the play bar for formats, presets, sharing, and saved sets.' },
 ]
 
 export function Coach() {

@@ -11,7 +11,7 @@ export function ViewSwitch() {
   const view = useStore((s) => s.view)
   const setView = useStore((s) => s.setView)
   return (
-    <div className="glass flex gap-1 p-1">
+    <div className="glass flex gap-1 rounded-full p-1">
       {VIEWS.map((v) => (
         <button
           key={v.key}

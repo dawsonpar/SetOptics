@@ -16,9 +16,23 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Pointer/touch interaction should not leave a focus ring (it reads as a
+   stray glow on mobile); keyboard focus keeps a visible outline. */
+@layer base {
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid rgba(79, 156, 247, 0.7);
+    outline-offset: 2px;
+  }
+}
+
 @layer components {
+  /* radius system (matches the DeepMind reference): interactive controls and
+     single-row bars are full pills; multi-row panels/cards are 24px */
   .glass {
-    @apply rounded-2xl border border-white/10 bg-surface/80 backdrop-blur-xl shadow-glass;
+    @apply rounded-3xl border border-white/10 bg-surface/80 backdrop-blur-xl shadow-glass;
   }
   .pill {
     @apply rounded-full border border-white/10 bg-surface-light/70 px-3.5 py-2
