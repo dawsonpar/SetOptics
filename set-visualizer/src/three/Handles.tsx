@@ -8,6 +8,7 @@ import type { HandleId } from '../lib/types'
 
 const FRONT_NORMAL = new THREE.Vector3(0, 0, 1)
 const SIDE_NORMAL = new THREE.Vector3(1, 0, 0)
+const UP_NORMAL = new THREE.Vector3(0, 1, 0)
 const plane = new THREE.Plane()
 const noRaycast = () => null
 
@@ -15,8 +16,12 @@ const noRaycast = () => null
 // over empty space, then intersect the pointer ray with the editing plane.
 // Front view edits X + height (plane normal +Z); side view edits depth + height.
 // The peak is special: it is locked to the path midpoint and only moves up/down.
+// Orbit view is camera-first: only the setter moves there, and only after a
+// double-click arms it; the drag then runs on the floor plane (X + depth).
 function useDragHandlers(id: HandleId) {
-  const editable = useStore((s) => s.view !== 'orbit')
+  const view = useStore((s) => s.view)
+  const armed = useStore((s) => s.orbitArmed === 'setter' && id === 'setter')
+  const editable = view !== 'orbit' || armed
 
   const onPointerDown = (e: ThreeEvent<PointerEvent>) => {
     if (!editable) return
@@ -30,13 +35,23 @@ function useDragHandlers(id: HandleId) {
     const s = useStore.getState()
     if (s.dragging !== id) return
     e.stopPropagation()
-    const front = s.view === 'front'
     const cur =
       id === 'setter'
         ? new THREE.Vector3(s.set.setter.x, 0, s.set.setter.z)
         : id === 'dest'
           ? new THREE.Vector3(s.set.dest.x, s.set.dest.y, s.set.dest.z)
           : (() => { const a = apexPoint(s.set); return new THREE.Vector3(a.x, a.y, a.z) })()
+
+    if (s.view === 'orbit') {
+      // armed setter: move freely on the floor plane, clamped by the store
+      plane.setFromNormalAndCoplanarPoint(UP_NORMAL, cur)
+      const hit = new THREE.Vector3()
+      if (!e.ray.intersectPlane(plane, hit)) return
+      if (id === 'setter') s.setSetter(hit.x, hit.z)
+      return
+    }
+
+    const front = s.view === 'front'
     plane.setFromNormalAndCoplanarPoint(front ? FRONT_NORMAL : SIDE_NORMAL, cur)
     const hit = new THREE.Vector3()
     if (!e.ray.intersectPlane(plane, hit)) return
@@ -72,21 +87,24 @@ function useDragHandlers(id: HandleId) {
 }
 
 // Faint cone arrows hinting which way the setter drags in the active view.
+// In orbit they appear only once the setter is armed, showing both axes.
 function DragArrows() {
   const view = useStore((s) => s.view)
   const dragging = useStore((s) => s.dragging)
-  if (view === 'orbit' || dragging) return null
-  // front: left/right along X; side: toward/away the net along Z
-  const dirs: [number, number, number, [number, number, number]][] =
-    view === 'front'
-      ? [
-          [0.85, 0.16, 0, [0, 0, -Math.PI / 2]],
-          [-0.85, 0.16, 0, [0, 0, Math.PI / 2]],
-        ]
-      : [
-          [0, 0.16, 0.85, [Math.PI / 2, 0, 0]],
-          [0, 0.16, -0.85, [-Math.PI / 2, 0, 0]],
-        ]
+  const armed = useStore((s) => s.orbitArmed === 'setter')
+  if (dragging) return null
+  if (view === 'orbit' && !armed) return null
+  // front: left/right along X; side: toward/away the net along Z; orbit: both
+  const X_DIRS: [number, number, number, [number, number, number]][] = [
+    [0.85, 0.16, 0, [0, 0, -Math.PI / 2]],
+    [-0.85, 0.16, 0, [0, 0, Math.PI / 2]],
+  ]
+  const Z_DIRS: [number, number, number, [number, number, number]][] = [
+    [0, 0.16, 0.85, [Math.PI / 2, 0, 0]],
+    [0, 0.16, -0.85, [-Math.PI / 2, 0, 0]],
+  ]
+  const dirs =
+    view === 'front' ? X_DIRS : view === 'side' ? Z_DIRS : [...X_DIRS, ...Z_DIRS]
   return (
     <>
       {dirs.map(([x, y, z, rot], i) => (
@@ -100,17 +118,21 @@ function DragArrows() {
 }
 
 // Setter: a capsule body with a floating head, a contact stalk up to the ball
-// release height, and faint drag-direction arrows.
+// release height, and faint drag-direction arrows. Double-clicking in orbit
+// arms it for repositioning.
 export function SetterHandle() {
   const setter = useStore((s) => s.set.setter)
   const h = useDragHandlers('setter')
+  const armSetter = () => {
+    if (useStore.getState().view === 'orbit') useStore.getState().setOrbitArmed('setter')
+  }
   return (
     <group position={[setter.x, 0, setter.z]}>
-      <mesh position={[0, 0.55, 0]} castShadow {...h}>
+      <mesh position={[0, 0.55, 0]} castShadow onDoubleClick={armSetter} {...h}>
         <capsuleGeometry args={[0.22, 0.7, 6, 14]} />
         <meshStandardMaterial color={BRAND.setter} emissive={BRAND.setter} emissiveIntensity={0.25} />
       </mesh>
-      <mesh position={[0, 1.5, 0]} castShadow {...h}>
+      <mesh position={[0, 1.5, 0]} castShadow onDoubleClick={armSetter} {...h}>
         <sphereGeometry args={[0.2, 24, 24]} />
         <meshStandardMaterial color={BRAND.setter} emissive={BRAND.setter} emissiveIntensity={0.3} />
       </mesh>

@@ -36,6 +36,9 @@ type Store = {
   playing: boolean
   playhead: number
   dragging: HandleId | null
+  // Orbit view is camera-first: pieces move there only after being armed by
+  // a double-click. Only the setter is armable in the core tool.
+  orbitArmed: 'setter' | null
 
   collections: Collection[]
   activeCollectionId: string | null
@@ -53,6 +56,7 @@ type Store = {
   setPlaying: (p: boolean) => void
   setPlayhead: (t: number) => void
   setDragging: (h: HandleId | null) => void
+  setOrbitArmed: (v: 'setter' | null) => void
 
   loadPreset: (key: string) => void
   loadSet: (s: SetState & { format?: FormatKey }) => void
@@ -85,6 +89,7 @@ export const useStore = create<Store>((setState) => ({
   playing: false,
   playhead: 0,
   dragging: null,
+  orbitArmed: null,
   collections: loadCollections(),
   activeCollectionId: null,
   showCoach: !sharedLink && !coachSeen,
@@ -106,7 +111,7 @@ export const useStore = create<Store>((setState) => ({
       return { format, set: clampSetFor(s.set, format), playing: false }
     }),
   setPlaybackRate: (r) => setState({ playbackRate: clamp(r, 0.1, 2) }),
-  setView: (view) => setState({ view }),
+  setView: (view) => setState({ view, orbitArmed: null }),
   togglePlay: () =>
     setState((s) => {
       if (s.playing) return { playing: false } // pause, keep position
@@ -116,6 +121,7 @@ export const useStore = create<Store>((setState) => ({
   setPlaying: (playing) => setState({ playing }),
   setPlayhead: (playhead) => setState({ playhead }),
   setDragging: (dragging) => setState({ dragging }),
+  setOrbitArmed: (orbitArmed) => setState({ orbitArmed }),
 
   loadPreset: (key) =>
     setState((s) => {

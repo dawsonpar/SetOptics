@@ -1,7 +1,8 @@
 import { Canvas } from '@react-three/fiber'
 import { ContactShadows } from '@react-three/drei'
-import { BRAND, STAGE_HALF_DEPTH } from '../lib/constants'
+import { BRAND } from '../lib/constants'
 import { Court } from './Court'
+import { StageBox } from './StageBox'
 import { Net } from './Net'
 import { ArcLine } from './ArcLine'
 import { Ball } from './Ball'
@@ -32,6 +33,7 @@ export function Scene() {
         shadow-camera-bottom={-12}
       />
 
+      <StageBox />
       <Court />
       <Net />
       <ArcLine />
@@ -41,8 +43,8 @@ export function Scene() {
       <PeakHandle />
 
       <ContactShadows
-        position={[0, 0.02, STAGE_HALF_DEPTH / 2]}
-        scale={26}
+        position={[0, 0.02, 0]}
+        scale={30}
         resolution={1024}
         blur={2.4}
         opacity={0.35}

@@ -8,7 +8,7 @@ export const CONTACT_HEIGHT = 2.2 // setter hands height (ball start)
 // Net visual proportions (heights come from the active format).
 export const NET_BODY_HEIGHT = 1.8 // net mesh hangs this far below the tape
 export const NET_BAND = 0.1 // visual net tape thickness
-export const ANTENNA_ABOVE = 0.8 // antenna rises this far above the tape
+export const ANTENNA_ABOVE = 1.6 // antenna rises this far above the tape (8 bands)
 export const ANTENNA_BAND = 0.2 // visual stripe height
 
 // Drag bounds that are about arc physics, not court size.
@@ -20,6 +20,12 @@ export const Y_MAX = 7 // generous ceiling for high arcs
 // (9-man, 10m deep half) and never changes between formats — courts scale
 // within it. CameraRig framings assume this value.
 export const STAGE_HALF_DEPTH = 10
+
+// Visible stage ground (the "outer box"): a constant subtle-grey floor
+// surrounding the court, so court size and net height read RELATIVE to a
+// fixed reference when switching formats. Never scales with the format.
+export const STAGE_BOX_WIDTH = 20
+export const STAGE_BOX_DEPTH = 26 // spans both halves plus margin
 
 // SetOptics brand
 export const BRAND = {
@@ -39,6 +45,8 @@ export const BRAND = {
   antennaRed: '#e23b2e',
   antennaWhite: '#f2f2f2',
   pole: '#d8dde6',
+  boxFloor: '#1a1d28', // subtle grey stage ground around the court
+  boxLine: '#353c50', // stage ground boundary
 } as const
 
 export const clamp = (v: number, lo: number, hi: number) =>
