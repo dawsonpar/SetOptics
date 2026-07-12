@@ -37,7 +37,7 @@ body {
   }
 }
 .ai-comet {
-  stroke-dasharray: 30 70;
+  stroke-dasharray: 12 88;
   animation: ai-dash 3s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,10 +1,40 @@
-import { useId, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
-// Animated AI-gradient ring (hover.dev pattern) with one important change:
-// the highlight is an SVG stroke dash traveling a pathLength-normalized
-// rounded-rect, so it moves along the PERIMETER at constant speed. A conic
-// gradient rotating at constant angle looks eased on a wide pill: it crawls
-// across the middle of the long edges and whips around the ends.
+// Animated AI-gradient comet around a pill button. The ring is an SVG
+// rounded-rect drawn with pathLength=100 and a linear dashoffset animation,
+// so the comet travels the PERIMETER at constant speed (a rotating conic
+// gradient reads as eased on a wide pill). The full palette rides along the
+// tail as six staggered solid-color dashes sharing the same animation with
+// phase offsets (negative delays), which keeps every color visible at once
+// without changing the speed.
+const COLORS = ['#f472b6', '#c084fc', '#818cf8', '#38bdf8', '#2dd4bf', '#fbbf24'] // tail -> head
+const STEP = 3.5 // perimeter units between colors (of pathLength 100)
+const PERIOD = 3 // seconds per revolution, matches .ai-comet in index.css
+
+function CometStrokes({ width, className = '' }: { width: number; className?: string }) {
+  return (
+    <>
+      {COLORS.map((color, i) => (
+        <rect
+          key={color}
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          rx="999"
+          pathLength={100}
+          fill="none"
+          stroke={color}
+          strokeWidth={width}
+          strokeLinecap="round"
+          className={`ai-comet ${className}`}
+          style={{ animationDelay: `${(-i * STEP * PERIOD) / 100}s` }}
+        />
+      ))}
+    </>
+  )
+}
+
 export function AIGradientBorder({
   children,
   className = '',
@@ -12,50 +42,18 @@ export function AIGradientBorder({
   children: ReactNode
   className?: string
 }) {
-  const gradId = useId()
   return (
     <div className={`relative rounded-full border border-white/10 p-px ${className}`}>
+      {/* crisp ring, under the content */}
       <svg aria-hidden className="absolute inset-0 h-full w-full overflow-visible">
-        <defs>
-          <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#f472b6" />
-            <stop offset="0.2" stopColor="#c084fc" />
-            <stop offset="0.4" stopColor="#818cf8" />
-            <stop offset="0.6" stopColor="#38bdf8" />
-            <stop offset="0.8" stopColor="#2dd4bf" />
-            <stop offset="1" stopColor="#fbbf24" />
-          </linearGradient>
-        </defs>
-        {/* soft glow following the comet */}
-        <rect
-          x="0"
-          y="0"
-          width="100%"
-          height="100%"
-          rx="999"
-          pathLength={100}
-          fill="none"
-          stroke={`url(#${gradId})`}
-          strokeWidth="5"
-          strokeLinecap="round"
-          className="ai-comet opacity-70 blur-[6px]"
-        />
-        {/* crisp ring segment */}
-        <rect
-          x="0"
-          y="0"
-          width="100%"
-          height="100%"
-          rx="999"
-          pathLength={100}
-          fill="none"
-          stroke={`url(#${gradId})`}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          className="ai-comet"
-        />
+        <CometStrokes width={1.5} />
       </svg>
       <div className="relative rounded-[inherit]">{children}</div>
+      {/* glow above the content so the button's opaque corners cannot bite
+          dark holes into it; the blur fades before reaching the label */}
+      <svg aria-hidden className="pointer-events-none absolute inset-0 h-full w-full overflow-visible">
+        <CometStrokes width={5} className="opacity-60 blur-[6px]" />
+      </svg>
     </div>
   )
 }
