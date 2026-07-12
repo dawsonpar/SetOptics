@@ -28,41 +28,20 @@ body {
   }
 }
 
-/* Rotating AI gradient (used by AIGradientBorder). The @property lets the
-   conic-gradient's start angle animate; browsers without support fall back
-   to a static gradient ring. */
-@property --ai-turn {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-@keyframes ai-turn {
+/* AI gradient comet (used by AIGradientBorder). The rect is drawn with
+   pathLength=100, so a linear dashoffset animation moves the visible dash
+   along the perimeter at constant speed regardless of the button's shape. */
+@keyframes ai-dash {
   to {
-    --ai-turn: 360deg;
+    stroke-dashoffset: -100;
   }
 }
-.ai-gradient {
-  background-image: conic-gradient(
-    from var(--ai-turn),
-    transparent 0%,
-    rgba(244, 114, 182, 0) 5%,
-    #f472b6 10%,
-    #c084fc 18%,
-    #818cf8 26%,
-    #38bdf8 34%,
-    #2dd4bf 42%,
-    #fbbf24 46%,
-    rgba(251, 191, 36, 0) 52%,
-    transparent 56%
-  );
-  animation: ai-turn 3s linear infinite;
-}
-.ai-glow-spill-mask {
-  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 50%, black 100%);
-  mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 50%, black 100%);
+.ai-comet {
+  stroke-dasharray: 30 70;
+  animation: ai-dash 3s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .ai-gradient {
+  .ai-comet {
     animation: none;
   }
 }
