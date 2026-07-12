@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 
 // Animated AI-gradient comet around a pill button. The ring is an SVG
 // rounded-rect drawn with pathLength=100 and a linear dashoffset animation,
@@ -11,7 +11,11 @@ const COLORS = ['#f472b6', '#c084fc', '#818cf8', '#38bdf8', '#2dd4bf', '#fbbf24'
 const STEP = 3.5 // perimeter units between colors (of pathLength 100)
 const PERIOD = 3 // seconds per revolution, matches .ai-comet in index.css
 
-function CometStrokes({ width, className = '' }: { width: number; className?: string }) {
+// rx must be the measured half-height for a true pill path. An oversized rx
+// (e.g. 999) clamps to width/2 while ry clamps to height/2, which renders an
+// ELLIPSE whose arc sags inside the button near the caps: the ring disappears
+// under the opaque content there and reads as a dark corner shadow.
+function CometStrokes({ width, radius, className = '' }: { width: number; radius: number; className?: string }) {
   return (
     <>
       {COLORS.map((color, i) => (
@@ -21,7 +25,8 @@ function CometStrokes({ width, className = '' }: { width: number; className?: st
           y="0"
           width="100%"
           height="100%"
-          rx="999"
+          rx={radius}
+          ry={radius}
           pathLength={100}
           fill="none"
           stroke={color}
@@ -42,17 +47,30 @@ export function AIGradientBorder({
   children: ReactNode
   className?: string
 }) {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [radius, setRadius] = useState(18)
+
+  useLayoutEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const update = () => setRadius(el.clientHeight / 2)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   return (
-    <div className={`relative rounded-full border border-white/10 p-px ${className}`}>
+    <div ref={wrapRef} className={`relative rounded-full border border-white/10 p-px ${className}`}>
       {/* crisp ring, under the content */}
       <svg aria-hidden className="absolute inset-0 h-full w-full overflow-visible">
-        <CometStrokes width={1.5} />
+        <CometStrokes width={1.5} radius={radius} />
       </svg>
       <div className="relative rounded-[inherit]">{children}</div>
       {/* glow above the content so the button's opaque corners cannot bite
           dark holes into it; the blur fades before reaching the label */}
       <svg aria-hidden className="pointer-events-none absolute inset-0 h-full w-full overflow-visible">
-        <CometStrokes width={5} className="opacity-60 blur-[6px]" />
+        <CometStrokes width={5} radius={radius} className="opacity-60 blur-[6px]" />
       </svg>
     </div>
   )
