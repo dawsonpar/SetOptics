@@ -160,7 +160,6 @@ export function DestHandle() {
         <sphereGeometry args={[0.2, 24, 24]} />
         <meshStandardMaterial color={BRAND.ball} emissive={BRAND.ball} emissiveIntensity={0.5} />
       </mesh>
-      <Line points={[[v.x, 0, v.z], [v.x, v.y, v.z]]} color={BRAND.ball} lineWidth={1} transparent opacity={0.25} />
     </group>
   )
 }
@@ -175,13 +174,6 @@ export function PeakHandle() {
         <sphereGeometry args={[0.096, 24, 24]} />
         <meshStandardMaterial color={BRAND.accent} emissive={BRAND.accent} emissiveIntensity={0.5} />
       </mesh>
-      <Line
-        points={[[apex.x, 0, apex.z], [apex.x, apex.y, apex.z]]}
-        color={BRAND.accent}
-        lineWidth={1}
-        transparent
-        opacity={0.25}
-      />
     </group>
   )
 }
