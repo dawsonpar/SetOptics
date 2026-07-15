@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { ContactShadows } from '@react-three/drei'
 import { BRAND } from '../lib/constants'
@@ -37,7 +38,9 @@ export function Scene() {
       <Court />
       <Net />
       <ArcLine />
-      <Ball />
+      <Suspense fallback={null}>
+        <Ball />
+      </Suspense>
       <SetterHandle />
       <DestHandle />
       <PeakHandle />
