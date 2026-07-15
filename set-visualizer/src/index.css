@@ -7,10 +7,14 @@ html, body, #root {
   margin: 0;
 }
 
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
 body {
   background: #0a0a0f;
   color: #f0f0ff;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 300;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;

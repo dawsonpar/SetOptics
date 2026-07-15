@@ -14,8 +14,8 @@ export default {
         accent: { DEFAULT: '#4f9cf7', dim: '#2d6bc4' },
       },
       fontFamily: {
-        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
-        mono: ['"DM Mono"', 'monospace'],
+        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         glow: '0 0 24px rgba(79, 156, 247, 0.35)',
