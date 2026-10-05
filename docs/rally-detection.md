@@ -14,6 +14,9 @@ API tokens.
 All scripts write JSON: a list of `{start_ms, end_ms, type}` segments
 where `type == "in-play"` marks a rally.
 
+A research write-up of a CPU-only TCN detector (not shipped here) is in
+[`tcn-rally-detection.md`](tcn-rally-detection.md).
+
 ## Signal-based detection
 
 Pure audio + optical-flow heuristic. No models beyond the ball detector.

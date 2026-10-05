@@ -35,6 +35,9 @@ The annotation tools (`tools/annotation/`) are the same pipeline SetOptics
 uses internally to build ground truth. They are useful even if you do not run
 detection at all.
 
+Research: how a small CPU-only TCN detector was built and evaluated, see
+[`docs/tcn-rally-detection.md`](docs/tcn-rally-detection.md) (weights and data not released).
+
 ## Quickstart
 
 ```bash
