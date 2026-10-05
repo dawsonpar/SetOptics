@@ -46,7 +46,7 @@ judged. That is enough to see a serve, the rally and the walk back.
 Why not ask an LLM about every second? We did, and it works (that is the
 baseline below), but it has three costs:
 
-- Money and time: ten labelling passes over the video per detection.
+- Money and time: many labelling passes over the video per detection.
 - Short rallies: on the Gemini baseline, rallies under 6 seconds failed 44
   to 58% of the time on every surface, against 7 to 12% overall.
 - No learning from corrections: a prompt does not improve when a user fixes
@@ -200,14 +200,10 @@ videos only.
 
 ### Gemini baseline
 
-The baseline (protocol `binary_pooled_v2`) asks Gemini 3.1 Flash-Lite, for
-each second of a clip, whether play is live. It runs 5 passes over 15 s
-clips and 5 over 20 s clips (the two grids make partly independent boundary
-errors), keeps a second only if all 10 passes agree, closes gaps under 8 s,
-then shifts starts 2 s earlier and ends 4 s later. Thinking budget is 0,
-which was the key control for run-to-run variance. It was tuned on the
-indoor games and run unchanged on the other surfaces. Its scores above are
-from the same games and the same scorer.
+The baseline is a tuned Gemini 3.1 Flash-Lite pipeline that labels each
+second of the video as rally or break. It was tuned on the indoor games and
+run unchanged on the other surfaces. Its scores above are from the same
+games and the same scorer.
 
 ## Results and ablations
 
