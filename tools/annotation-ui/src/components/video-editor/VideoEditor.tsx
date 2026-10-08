@@ -107,6 +107,7 @@ export default function VideoEditor() {
 
   // Helper to convert file path to proper file:// URL
   const toFileUrl = (filePath: string): string => {
+    if (window.electronAPI.mediaUrl) return window.electronAPI.mediaUrl(filePath);
     const normalized = filePath.replace(/\\/g, '/');
     if (normalized.match(/^[a-zA-Z]:/)) {
       return `file:///${normalized}`;
@@ -173,7 +174,7 @@ export default function VideoEditor() {
         const draft = JSON.parse(saved) as { savedAt: string; segments: SegmentRegion[] };
         const savedAt = new Date(draft.savedAt);
         toast(`Draft found from ${savedAt.toLocaleTimeString()}`, {
-          description: `${draft.segments.length} segments — restore to continue editing`,
+          description: `${draft.segments.length} segments, restore to continue editing`,
           action: {
             label: 'Restore',
             onClick: () => {
@@ -239,7 +240,7 @@ export default function VideoEditor() {
     setSelectedSegmentId(null);
     setAnnotationDurationMs(0);
     setLoadingState({ status: 'loaded', source: 'raw' });
-    toast.success('Blank timeline started — press B to split the break, 1/2 to label');
+    toast.success('Blank timeline started. Press B to split the break, 1/2 to label');
   }, []);
 
   // Seed the blank timeline with one full-length break once the video reports
@@ -270,7 +271,7 @@ export default function VideoEditor() {
     ));
   }, []);
 
-  // Mark a set moment — deduplicates within ±200ms
+  // Mark a set moment, deduplicating within ±200ms
   const handleAddSetMoment = useCallback((timeMs: number) => {
     const MIN_GAP_MS = 200;
     const alreadyExists = setMoments.some(
@@ -643,8 +644,8 @@ export default function VideoEditor() {
           toast.warning(
             `Saved with issues: ${result.warning.outOfRangeCount} segment(s) extend past `
             + `video end (duration ${result.warning.videoDurationSec}s, max end `
-            + `${result.warning.maxEndSec}s). Likely loaded from a stale raw file — `
-            + `please review.`,
+            + `${result.warning.maxEndSec}s). Likely loaded from a stale raw file. `
+            + `Please review.`,
             { duration: 10000 },
           );
         } else {
@@ -655,7 +656,7 @@ export default function VideoEditor() {
       }
     } catch (err) {
       console.error('Error saving annotations:', err);
-      toast.error('Failed to save annotations');
+      toast.error(err instanceof Error ? err.message : 'Failed to save annotations');
     }
   }, [rawVideoPath, segments, duration]);
 
@@ -679,7 +680,7 @@ export default function VideoEditor() {
     checkExistingVideo();
   }, []);
 
-  // Detect what files are available and present options — never auto-decides
+  // Detect what files are available and present options; never auto-decides
   const detectVideoContext = useCallback(async (filePath: string) => {
     setLoadingState({ status: 'detecting' });
     try {
@@ -687,6 +688,7 @@ export default function VideoEditor() {
       setLoadingState({ status: 'ready', context });
     } catch (err) {
       console.error('Error detecting video context:', err);
+      toast.error(err instanceof Error ? err.message : 'Failed to detect video context');
       setLoadingState({ status: 'idle' });
     }
   }, []);
@@ -735,7 +737,7 @@ export default function VideoEditor() {
     }
   }, [rawVideoPath, loadingState, runDetection]);
 
-  // Open annotation file picker (escape hatch — any JSON)
+  // Open annotation file picker (escape hatch: any JSON)
   const handleLoadFile = useCallback(async () => {
     const result = await window.electronAPI.openAnnotationFilePicker();
     if (!result.success || result.cancelled || !result.path) return;
@@ -1121,7 +1123,7 @@ export default function VideoEditor() {
         {/* Right sidebar */}
         <div className="w-64 min-w-0 bg-[#09090b] border border-white/5 rounded-2xl flex flex-col shadow-xl h-full overflow-hidden">
           <div className="flex-1 p-4 flex flex-col overflow-y-auto">
-            {/* Video context panel — shows when context detected, awaiting user action */}
+            {/* Video context panel: shows when context detected, awaiting user action */}
             {loadingState.status === 'ready' && (
               <VideoContextPanel
                 context={loadingState.context}
@@ -1145,7 +1147,7 @@ export default function VideoEditor() {
               />
             )}
 
-            {/* Status — shows after loading or while detecting */}
+            {/* Status: shows after loading or while detecting */}
             {loadingState.status !== 'ready' && (
               <div className="mb-4 p-3 rounded-lg bg-white/5 border border-white/5">
                 <p className="text-xs text-slate-400 mb-1">Status</p>

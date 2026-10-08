@@ -4,7 +4,7 @@ A desktop tool for labeling **volleyball rally segments** (ball in-play vs.
 break) to build ground-truth data for SetOptics. Load a video, mark the
 rallies on a timeline, and export a corrected annotation JSON.
 
-You can annotate **fully by hand with no Python and no API key** — just Node.
+You can annotate **fully by hand with no Python and no API key**, just Node.
 The optional AI draft (Gemini) needs the project's Python env; see below.
 
 ## Quick start (one command)
@@ -23,16 +23,35 @@ for export, `ffmpeg` on your PATH.)
 
 1. Drag a video onto the window (MP4 / MOV / WebM).
 2. Pick a starting point:
-   - **Start from scratch** — empty timeline, no Python needed.
-   - **Run Detection** — optional Gemini AI draft (~90% right) to correct.
+   - **Start from scratch**: empty timeline, no Python needed.
+   - **Run Detection**: optional Gemini AI draft (~90% right) to correct.
      Requires the project Python env: run `./setup.sh` at the repo root and
      set `GEMINI_API_KEY` in `.env`.
-   - **Load File…** — open an existing annotation JSON.
+   - **Load File…**: open an existing annotation JSON.
 3. Correct the timeline:
    - Green = `in-play` (rally), gray = `break`.
    - Drag a segment's edges to fix boundaries.
    - `1` = mark `in-play`, `2` = mark `break`, `B` = split at the playhead.
-4. **Export** — produces `<video>_annotations_corrected.json`.
+4. **Export** produces `<video>_annotations_corrected.json`.
+
+## Browser mode
+
+Runs the editor in a plain browser instead of Electron, on this machine
+only.
+
+```bash
+ANNOTATION_WEB_TOKEN=$(openssl rand -hex 16) npm run dev:web
+```
+
+Open `http://localhost:5173/?key=<token>` once; a cookie keeps the session.
+The token must be at least 16 characters.
+
+- Videos are listed from `data/rally-gt/` at the repo root. Set
+  `ANNOTATION_VIDEO_ROOT` to use another folder.
+- Saving writes `<video>_annotations_corrected.json` next to the video and
+  keeps the previous file as `.backup`.
+- The AI draft and **Load File…** are Electron only. Start from scratch,
+  or put a raw annotation JSON next to the video so it is detected.
 
 ## Output format
 

@@ -3,3 +3,4 @@ dist/
 dist-electron/
 release/
 *.log
+*.tsbuildinfo
