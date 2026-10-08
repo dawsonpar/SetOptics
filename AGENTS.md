@@ -79,6 +79,12 @@ python tools/annotation/eval_sliding_window.py FOOTAGE.mp4
 The ground truth format and IoU/F1 conventions are documented in
 `tools/shared/eval/temporal.py`. Read it before adding a new metric.
 
+### Make a raw annotation file, or help someone with the annotation UI
+
+Read `tools/annotation-ui/README.md`. "Making a raw draft" lists every way
+to produce a file the UI will pick up, and where it must live.
+"Troubleshooting" maps each error the UI shows to its cause.
+
 ### Add a new detector
 
 1. Implement the detector as a module under `setoptics/` if it is reusable,
@@ -97,7 +103,7 @@ See `docs/training.md`. The YOLO trainer is `scripts/train_volleyball_yolo.py`.
 - Python 3.11 (use `pyenv` or system).
 - `ffmpeg` on path.
 - A `.env` at the repo root with `GEMINI_API_KEY=...` for any LLM path.
-- Optional `GOOGLE_API_KEY` alias works for the annotation tools.
+- `GOOGLE_API_KEY` still works as a fallback for the annotation tools.
 - The repo never ships secrets. Never write a key into source.
 
 ## What is NOT here

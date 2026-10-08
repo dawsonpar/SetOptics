@@ -198,8 +198,7 @@ export function registerIpcHandlers(
         };
       }
 
-      // Build command arguments — annotate_fast.py expects a bare name, not a path
-      const args = [ANNOTATION_SCRIPT, '--video', videoName];
+      const args = [ANNOTATION_SCRIPT, '--video', videoPath];
 
       if (options?.startBatch && options.startBatch > 1) {
         args.push('--start-batch', String(options.startBatch));

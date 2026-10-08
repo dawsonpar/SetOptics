@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
- GROUND-TRUTH rally annotation — 3-stage sliding-window pipeline
+ GROUND-TRUTH rally annotation: 3-stage sliding-window pipeline
 ==============================================================================
 
  Pipeline:      Stage 1 (2-min window, 30s stride detect)
@@ -9,12 +9,12 @@
                 -> Stage 3 (gap-fill scan of long breaks)
                 All stages share the backend's RL-tuned prompts.
  Model:         `gemini-2.5-flash` by default (what the backend production
-                path uses). RL-tuned over 19 iterations on this model —
+                path uses). RL-tuned over 19 iterations on this model;
                 swapping models may regress quality. Override via --model
                 if you are explicitly benchmarking another model.
  Config source: backend/app/services/gemini_rally_detector.py (prompts,
                 stage params). This script does NOT read tools/annotation/
-                config.yaml — that config belongs to annotate_fast.py.
+                config.yaml; that config belongs to annotate_fast.py.
  Measured F1:   94.6% on training game, 93.5% on held-out (commit f66d414)
  Output path:   next to each video: <video>_raw_annotations.json
 
@@ -22,7 +22,7 @@
    - Creating or rebuilding ground-truth evaluation samples
    - Production-parity annotations (same code path the backend worker uses)
    - Cases where the extra ~19pp F1 over annotate_fast.py is worth the
-     longer wall clock (~3-4x slower — multiple Gemini calls per video)
+     longer wall clock (~3-4x slower, multiple Gemini calls per video)
 
  DO NOT USE FOR:
    - Fast prompt iteration (use annotate_fast.py)
@@ -46,7 +46,7 @@
      python tools/annotation/annotate_sliding_window.py \\
          data/rally-gt/indoor-game-001.mp4 --force
 
-     # Benchmark a different model (off-the-tuned-path — quality will vary):
+     # Benchmark a different model (off the tuned path, quality will vary):
      python tools/annotation/annotate_sliding_window.py \\
          data/rally-gt/indoor-game-001.mp4 --model gemini-3-flash-preview
 ==============================================================================
@@ -106,7 +106,7 @@ def process_video(
     out_path = video_path.parent / (video_path.stem + "_raw_annotations.json")
 
     if out_path.exists() and not force:
-        print(f"[{video_path.name}] Skipping — raw annotations already exist.")
+        print(f"[{video_path.name}] Skipping, raw annotations already exist.")
         return {"video": video_path.name, "status": "skipped", "elapsed_min": 0, "segments": None}
 
     from setoptics.gemini_rally_detector import GeminiRallyDetector
@@ -126,7 +126,7 @@ def process_video(
     with open(out_path, "w") as f:
         json.dump(annotation, f, indent=2)
 
-    print(f"[{video_path.name}] Done — {len(in_play)} rallies in {elapsed/60:.1f} min → {out_path.name}")
+    print(f"[{video_path.name}] Done: {len(in_play)} rallies in {elapsed/60:.1f} min → {out_path.name}")
     return {"video": video_path.name, "status": "ok", "elapsed_min": elapsed / 60, "segments": len(in_play)}
 
 
@@ -146,7 +146,7 @@ def main() -> None:
         help=(
             "Override Gemini model (default: backend's gemini-2.5-flash, "
             "which the 3-stage prompts were RL-tuned against). Example: "
-            "--model gemini-3-flash-preview. Use for benchmarking only — "
+            "--model gemini-3-flash-preview. Use for benchmarking only; "
             "quality is untested off the tuned path."
         ),
     )
@@ -164,9 +164,9 @@ def main() -> None:
             print(f"Error: {p} not found", file=sys.stderr)
         sys.exit(1)
 
-    api_key = os.environ.get("GOOGLE_API_KEY", "")
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY", "")
     if not api_key:
-        raise RuntimeError("GOOGLE_API_KEY not set in tools/shared/.env")
+        raise RuntimeError("GEMINI_API_KEY not set in the repo-root .env")
 
     results = []
     workers = min(args.parallel, len(args.video_paths))
@@ -189,7 +189,7 @@ def main() -> None:
     print(f"  {'Video':<35} {'Status':<8} {'Min':>5} {'Rallies':>8}")
     print(f"  {'-'*35} {'-'*8} {'-'*5} {'-'*8}")
     for r in sorted(results, key=lambda x: x["video"]):
-        segs = str(r["segments"]) if r["segments"] is not None else "—"
+        segs = str(r["segments"]) if r["segments"] is not None else "-"
         print(f"  {r['video']:<35} {r['status']:<8} {r['elapsed_min']:>5.1f} {segs:>8}")
     print(f"{'='*60}\n")
 
