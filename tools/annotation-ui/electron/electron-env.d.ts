@@ -26,7 +26,6 @@ interface Window {
   electronAPI: {
     getSources: (opts: Electron.SourcesOptions) => Promise<ProcessedDesktopSource[]>
     switchToEditor: () => Promise<void>
-    openSourceSelector: () => Promise<void>
     selectSource: (source: any) => Promise<any>
     getSelectedSource: () => Promise<any>
     storeRecordedVideo: (videoData: ArrayBuffer, fileName: string) => Promise<{ success: boolean; path?: string; message?: string }>
@@ -70,6 +69,8 @@ interface Window {
     onAnnotationComplete: (callback: (result: AnnotationComplete) => void) => () => void
     onAnnotationError: (callback: (error: AnnotationError) => void) => () => void
     onAnnotationCancelled: (callback: () => void) => () => void
+    // Browser mode only: HTTP URL for a local media path.
+    mediaUrl?: (path: string) => string
   }
 }
 

@@ -16,11 +16,13 @@ class GoogleProvider(BaseProvider):
         if api_key.startswith("${") and api_key.endswith("}"):
             env_var = api_key[2:-1]
             api_key = os.environ.get(env_var, "")
+        if not api_key:
+            api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY", "")
 
         if not api_key:
             raise ValueError(
-                "Google API key not found. Set GOOGLE_API_KEY environment "
-                "variable or provide api_key in config."
+                "Gemini API key not found. Set GEMINI_API_KEY in the repo-root "
+                ".env or provide api_key in config."
             )
 
         try:

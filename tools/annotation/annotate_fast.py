@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
- FAST rally annotation — single-pass Gemini Files API
+ FAST rally annotation: single-pass Gemini Files API
 ==============================================================================
 
  Pipeline:      re-encode -> chunk -> upload -> one prompt per chunk -> merge
@@ -13,8 +13,8 @@
 
  USE THIS WHEN:
    - Rapidly iterating on prompts or model selection
-   - The annotation-ui's "Run Gemini Detection" button (the electron
-     handler shells out to this script via `--video <name>`)
+   - The annotation-ui's "Run Detection" button (the electron
+     handler shells out to this script via `--video <path>`)
    - Comparing providers / prompt variants
 
  DO NOT USE FOR GROUND TRUTH: it undershoots the production pipeline by
@@ -23,6 +23,7 @@
  Usage:
      cd tools/annotation
      ../../python annotate_fast.py --video indoor-game-001
+     ../../python annotate_fast.py --video /path/to/footage.mp4
      ../../python annotate_fast.py --all
      ../../python annotate_fast.py --video indoor-game-001 --evaluate
 ==============================================================================
@@ -40,6 +41,7 @@ from dotenv import load_dotenv
 
 _script_dir = Path(__file__).parent
 load_dotenv(_script_dir / ".env")
+load_dotenv(_script_dir.parent.parent / ".env")
 
 _tools_dir = _script_dir.parent
 if str(_tools_dir) not in sys.path:
@@ -248,10 +250,10 @@ def annotate_video(
             )
             print(f"  {n_rallies} rallies detected in {elapsed:.1f}s")
         else:
-            print(f"  Chunk {i + 1} failed — skipping")
+            print(f"  Chunk {i + 1} failed, skipping")
 
     if not chunk_results:
-        raise RuntimeError("All chunks failed — no results to merge")
+        raise RuntimeError("All chunks failed, no results to merge")
 
     # Merge
     print(f"\nMerging {len(chunk_results)} chunk results...")
@@ -293,7 +295,11 @@ def annotate_video(
 # -------------------------------------------------------------------
 
 def find_video(config: dict, video_name: str) -> Path:
-    """Locate a video file, checking samples and rally-edits directories."""
+    """Locate a video by path, or by name in the samples and rally-edits directories."""
+    as_path = Path(video_name).expanduser()
+    if as_path.is_file():
+        return as_path.resolve()
+
     samples_dir = Path(config["samples_dir"])
     if not samples_dir.is_absolute():
         samples_dir = _script_dir / samples_dir
@@ -321,7 +327,7 @@ def main():
     )
     parser.add_argument(
         "--video", type=str, default=None,
-        help="Video name (e.g. indoor-game-001)",
+        help="Video path, or a name in samples_dir (e.g. indoor-game-001)",
     )
     parser.add_argument(
         "--all", action="store_true",
@@ -366,6 +372,7 @@ def main():
         print(f"{'=' * 60}\n")
 
         video_path = find_video(config, video_name)
+        video_name = video_path.stem
         print(f"Video: {video_path}")
 
         merged = annotate_video(

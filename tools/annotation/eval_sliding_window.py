@@ -25,6 +25,7 @@ sys.path.insert(0, str(_backend_dir))
 sys.path.insert(0, str(_tools_dir))
 
 load_dotenv(_tools_dir / "shared" / ".env")
+load_dotenv(_repo_root / ".env")
 
 from shared.eval.temporal import Interval, evaluate as temporal_evaluate
 
@@ -54,9 +55,9 @@ def main() -> None:
         print(f"Error: {video_path} not found", file=sys.stderr)
         sys.exit(1)
 
-    api_key = os.environ.get("GOOGLE_API_KEY", "")
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY", "")
     if not api_key:
-        raise RuntimeError("GOOGLE_API_KEY not set in tools/shared/.env")
+        raise RuntimeError("GEMINI_API_KEY not set in the repo-root .env")
 
     from setoptics.gemini_rally_detector import GeminiRallyDetector
 

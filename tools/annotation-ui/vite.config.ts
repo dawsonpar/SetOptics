@@ -2,13 +2,28 @@ import { defineConfig } from 'vite'
 import path from 'node:path'
 import electron from 'vite-plugin-electron/simple'
 import react from '@vitejs/plugin-react'
+import { annotationWebApi } from './web/fileApi'
 
+
+// Browser mode (ANNOTATION_WEB=1): no Electron, file access goes through web/fileApi.ts.
+const isWeb = process.env.ANNOTATION_WEB === '1'
+const setOpticsRoot = path.resolve(__dirname, '..', '..')
+
+function webPlugins() {
+  const token = process.env.ANNOTATION_WEB_TOKEN
+  if (!token || token.length < 16) throw new Error('ANNOTATION_WEB_TOKEN of at least 16 characters is required in browser mode')
+  return [annotationWebApi({
+    setOpticsRoot,
+    videoRoot: process.env.ANNOTATION_VIDEO_ROOT ?? path.join(setOpticsRoot, 'data', 'rally-gt'),
+    token,
+  })]
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    electron({
+    ...(isWeb ? webPlugins() : [electron({
       main: {
         // Shortcut of `build.lib.entry`.
         entry: 'electron/main.ts',
@@ -30,7 +45,7 @@ export default defineConfig({
         // https://github.com/electron-vite/vite-plugin-electron-renderer/issues/78#issuecomment-2053600808
         ? undefined
         : {},
-    }),
+    })]),
   ],
   resolve: {
     alias: {

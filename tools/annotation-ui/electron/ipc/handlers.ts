@@ -3,6 +3,7 @@ import { spawn, ChildProcess } from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { detectVideoContext, fileExists, overrunWarning } from './videoContext'
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -15,22 +16,6 @@ const SET_OPTICS_ROOT = path.resolve(__dirname, '..', '..', '..')
 const ANNOTATION_SCRIPT_DIR = path.join(SET_OPTICS_ROOT, 'tools', 'annotation')
 const ANNOTATION_SCRIPT = path.join(ANNOTATION_SCRIPT_DIR, 'annotate_fast.py')
 const PYTHON_PATH = path.join(SET_OPTICS_ROOT, '.venv', 'bin', 'python3')
-
-async function fileExists(p: string): Promise<boolean> {
-  try {
-    await fs.access(p);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function findFirst(paths: string[]): Promise<string | null> {
-  for (const p of paths) {
-    if (await fileExists(p)) return p;
-  }
-  return null;
-}
 
 export function registerIpcHandlers(
   getMainWindow: () => BrowserWindow | null
@@ -158,77 +143,9 @@ export function registerIpcHandlers(
   // Detect what files are available for a video and return full context.
   // Replaces the old check-existing-annotation with richer information
   // so the UI can offer the right actions rather than auto-deciding.
-  ipcMain.handle('detect-video-context', async (_, videoPath: string) => {
-    try {
-      const videoName = path.basename(videoPath, path.extname(videoPath));
-      const videoDir = path.dirname(videoPath);
-      // Primary GT data dir (post-2026-04-22 rename from `data/samples`).
-      const rallyGtDir = path.join(SET_OPTICS_ROOT, 'data', 'rally-gt');
-      const legacySamplesDir = path.join(SET_OPTICS_ROOT, 'data', 'samples');
-      const rallyEditsDir = path.join(SET_OPTICS_ROOT, 'data', 'rally-edits');
-
-      // Rally edit detection: video name ends with _rally_edit and has a matching map
-      let rallyEditMap = null;
-      if (videoName.endsWith('_rally_edit')) {
-        const mapPath = await findFirst([
-          path.join(videoDir, `${videoName}_map.json`),
-          path.join(rallyEditsDir, `${videoName}_map.json`),
-        ]);
-        if (mapPath) {
-          const data = JSON.parse(await fs.readFile(mapPath, 'utf-8'));
-          rallyEditMap = {
-            path: mapPath,
-            segmentCount: data.segment_count as number,
-            totalDurationSec: data.total_concat_duration_sec as number,
-          };
-        }
-      }
-
-      // Corrected annotation
-      const correctedPath = await findFirst([
-        path.join(videoDir, `${videoName}_annotations_corrected.json`),
-        path.join(rallyGtDir, `${videoName}_annotations_corrected.json`),
-        path.join(legacySamplesDir, `${videoName}_annotations_corrected.json`),
-      ]);
-
-      // Raw annotation. Priority order: ground-truth pipeline output
-      // (`_raw_annotations.json` from annotate_sliding_window.py, written
-      // next to the video) comes before the fast-pipeline output
-      // (`_rally_annotations.json` from annotate_fast.py). A stale fast
-      // output under `tools/annotation/annotations/<name>/rally/` can
-      // reference a completely different video that once shared the name
-      // — prefer the colocated file so the UI doesn't silently load
-      // annotations from some other recording.
-      const rawPath = await findFirst([
-        path.join(videoDir, `${videoName}_raw_annotations.json`),
-        path.join(rallyGtDir, `${videoName}_raw_annotations.json`),
-        path.join(videoDir, `${videoName}_rally_annotations.json`),
-        path.join(SET_OPTICS_ROOT, 'tools', 'annotation', 'annotations', videoName, 'rally', `${videoName}_rally_annotations.json`),
-      ]);
-
-      const videoType = rallyEditMap
-        ? 'rally-edit'
-        : correctedPath || rawPath
-        ? 'raw-footage'
-        : 'unknown';
-
-      return {
-        videoType,
-        rallyEditMap,
-        correctedAnnotation: correctedPath ? { path: correctedPath } : null,
-        rawAnnotation: rawPath ? { path: rawPath } : null,
-      };
-    } catch (error) {
-      console.error('Error detecting video context:', error);
-      return {
-        videoType: 'unknown',
-        rallyEditMap: null,
-        correctedAnnotation: null,
-        rawAnnotation: null,
-        error: String(error),
-      };
-    }
-  });
+  ipcMain.handle('detect-video-context', (_, videoPath: string) =>
+    detectVideoContext(videoPath, SET_OPTICS_ROOT)
+  );
 
   // Open a file picker scoped to JSON annotation files
   ipcMain.handle('open-annotation-file-picker', async () => {
@@ -281,8 +198,7 @@ export function registerIpcHandlers(
         };
       }
 
-      // Build command arguments — annotate_fast.py expects a bare name, not a path
-      const args = [ANNOTATION_SCRIPT, '--video', videoName];
+      const args = [ANNOTATION_SCRIPT, '--video', videoPath];
 
       if (options?.startBatch && options.startBatch > 1) {
         args.push('--start-batch', String(options.startBatch));
@@ -460,39 +376,7 @@ export function registerIpcHandlers(
       const videoName = path.basename(videoPath, path.extname(videoPath));
       const defaultFileName = `${videoName}_annotations_corrected.json`;
 
-      // Pre-save validation. The 2026-04-22 incident showed that a
-      // stale raw file from a different video could leave phantom
-      // segments past the real video's end in the corrected export —
-      // and nobody noticed until F1 was computed. Detect the
-      // mismatch and return a warning so the UI can surface it.
-      // We do NOT silently drop the segments here; the frontend
-      // decides whether to prompt the user or strip them.
-      let overrunWarning: { outOfRangeCount: number; videoDurationSec: number; maxEndSec: number } | null = null;
-      try {
-        const parsed = JSON.parse(jsonData);
-        const durSec = parsed?.video_metadata?.duration_seconds;
-        const segs: any[] = Array.isArray(parsed?.segments) ? parsed.segments : [];
-        if (typeof durSec === 'number' && durSec > 0 && segs.length > 0) {
-          const limitMs = durSec * 1000;
-          const overrun = segs.filter((s: any) => typeof s?.end_ms === 'number' && s.end_ms > limitMs + 100);
-          if (overrun.length > 0) {
-            const maxEnd = Math.max(...segs.map((s: any) => (typeof s?.end_ms === 'number' ? s.end_ms : 0)));
-            overrunWarning = {
-              outOfRangeCount: overrun.length,
-              videoDurationSec: Number(durSec.toFixed(3)),
-              maxEndSec: Number((maxEnd / 1000).toFixed(3)),
-            };
-            console.warn(
-              `[save-corrected-annotation] ${overrun.length} segment(s) extend past video duration `
-              + `(duration=${durSec}s, maxEnd=${(maxEnd / 1000).toFixed(1)}s). Saving anyway — `
-              + `frontend should surface the mismatch to the user.`
-            );
-          }
-        }
-      } catch (validationErr) {
-        // Malformed JSON — let the save still attempt; the read path will complain.
-        console.warn('[save-corrected-annotation] validation parse failed:', validationErr);
-      }
+      const warning = overrunWarning(jsonData);
 
       const result = await dialog.showSaveDialog({
         title: 'Save Corrected Annotations',
@@ -513,7 +397,7 @@ export function registerIpcHandlers(
       return {
         success: true,
         path: result.filePath,
-        warning: overrunWarning,
+        warning,
       };
     } catch (error) {
       console.error('Error saving corrected annotation:', error);
