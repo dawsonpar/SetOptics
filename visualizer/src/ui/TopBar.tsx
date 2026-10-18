@@ -18,7 +18,7 @@ export function TopBar() {
       <div className="pointer-events-auto glass flex items-center justify-center whitespace-nowrap rounded-full px-3 py-2 sm:px-4">
         <span className="font-mono text-[13px] font-medium tracking-tight text-white">SetOptics</span>
         <span className="ml-2 hidden font-mono text-[12px] text-muted sm:inline">
-          Set Visualizer
+          Visualizer
         </span>
       </div>
       <div className="pointer-events-auto flex shrink-0 gap-2">

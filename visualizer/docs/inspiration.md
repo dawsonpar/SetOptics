@@ -1,6 +1,6 @@
-# Inspiration notes — 3D reference sites
+# Inspiration notes: 3D reference sites
 
-Studied 2026-06-02 for the set-visualizer. Two Three.js showcases:
+Studied 2026-06-02 for the visualizer. Two Three.js showcases:
 Coastal World (merci-michel) and Choo-Choo World. Goal: borrow the
 *feel* and proven interaction patterns, not the asset budget.
 
@@ -23,7 +23,7 @@ Pairs with localStorage collections (your private library) vs URL (share one).
 ### 3. Orbit camera + snap views  [Choo-Choo]
 Left-drag rotate, wheel zoom, and a compass button that snaps the camera by
 45°. Validates our plan: free OrbitControls PLUS explicit Front / Side snap
-buttons. When switching views, TWEEN the camera (smooth move), don't cut —
+buttons. When switching views, TWEEN the camera (smooth move), don't cut:
 the animated camera is what reads premium.
 
 ### 4. Bottom toolbar of tactile pills  [Choo-Choo]
@@ -60,8 +60,8 @@ cobalt/accent (#0761b2 / #4f9cf7) for the arc and Play button, soft ground
 shadow, minimal floating glass chrome (top-right: title, Share, settings).
 
 ## What NOT to copy
-- The long narrative onboarding funnel (Coastal) — we want straight-to-tool.
-- Heavy bespoke 3D assets — keep geometry minimal (court plane, net, capsule
+- The long narrative onboarding funnel (Coastal): we want straight-to-tool.
+- Heavy bespoke 3D assets: keep geometry minimal (court plane, net, capsule
   setter, sphere ball, bezier arc line). The polish is in shading, camera
   tweens, the play animation, and the share, not asset count.
 

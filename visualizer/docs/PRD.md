@@ -1,6 +1,6 @@
-# Set Visualizer — PRD (Phase 1 / MVP)
+# Visualizer: PRD (Phase 1 / MVP)
 
-Interactive 3D volleyball set visualizer. A setter places themselves and a
+Interactive 3D volleyball visualizer. A setter places themselves and a
 ball destination on the court, shapes the set's arc by dragging its peak, and
 plays the set as an animation. Two snap views (front + side) make the 3D arc
 fully editable. Lives in the open-source SetOptics repo, deployed to Vercel
@@ -20,7 +20,7 @@ docs: `inspiration.md` (3D reference patterns).
 - Z = depth from the net into the court. Net plane at Z = 0; setter's half is
   Z in [0, 10] (9-man court is 10 x 20m, one half = 10 x 10m).
 - Net: plane at Z = 0 spanning X[-5,5], height [0, NET_HEIGHT].
-  NET_HEIGHT default 2.43m — VERIFY against NACIVT rulebook.
+  NET_HEIGHT default 2.43m (VERIFY against NACIVT rulebook).
 
 ## Entities (confirmed)
 - Setter (origin): draggable marker on the floor (X, Z). Ball contact starts
@@ -60,7 +60,7 @@ docs: `inspiration.md` (3D reference patterns).
   (compact). Opening the link restores that exact set. Lets Dawson send a
   hitter a link to their set; lets anyone share a set.
 
-## Aesthetics — match SetOptics
+## Aesthetics: match SetOptics
 - Dark studio bg #0a0a0f with subtle gradient + vignette.
 - Cobalt primary #0761b2, accent blue #4f9cf7; arc + play button glow.
 - Low-poly soft court, soft contact shadow under setter/ball, faint net.
@@ -72,7 +72,7 @@ docs: `inspiration.md` (3D reference patterns).
 - Vite + React + TypeScript + three + @react-three/fiber + @react-three/drei.
 - zustand for app state. Tailwind for UI chrome (SetOptics tokens).
 - localStorage persistence; URL-param sharing.
-- Deploy: Vercel static SPA. Path: SetOptics/set-visualizer/.
+- Deploy: Vercel static SPA. Path: SetOptics/visualizer/.
 
 ## Scope
 Phase 1 / today (demoable + filmable for the glimpse):

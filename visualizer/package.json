@@ -1,9 +1,9 @@
 {
-  "name": "set-visualizer",
+  "name": "visualizer",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Interactive 3D volleyball set visualizer (SetOptics)",
+  "description": "Interactive 3D volleyball visualizer (SetOptics)",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
