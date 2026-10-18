@@ -3,8 +3,8 @@
 Interactive 3D volleyball visualizer. A setter places themselves and a
 ball destination on the court, shapes the set's arc by dragging its peak, and
 plays the set as an animation. Two snap views (front + side) make the 3D arc
-fully editable. Lives in the open-source SetOptics repo, deployed to Vercel
-for any setter to use.
+fully editable. The source lives in the open-source SetOptics repo. The
+hosted version is part of the SetOptics app at setoptics.com/visualizer.
 
 Built as the "Build" payoff for the @dp.mp4 9-man arc (episode 2). Companion
 docs: `inspiration.md` (3D reference patterns).
@@ -72,7 +72,8 @@ docs: `inspiration.md` (3D reference patterns).
 - Vite + React + TypeScript + three + @react-three/fiber + @react-three/drei.
 - zustand for app state. Tailwind for UI chrome (SetOptics tokens).
 - localStorage persistence; URL-param sharing.
-- Deploy: Vercel static SPA. Path: SetOptics/visualizer/.
+- Deploy: hosted in the SetOptics app at setoptics.com/visualizer. The old
+  standalone URL, 3d-set-visualizer.vercel.app, redirects there.
 
 ## Scope
 Phase 1 / today (demoable + filmable for the glimpse):

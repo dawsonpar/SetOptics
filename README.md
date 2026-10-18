@@ -19,8 +19,9 @@ An interactive 3D tool for mapping setter distribution and hitter
 tendencies on the court. Built to replace the pen-and-paper court
 diagrams players and coaches scribble during matches.
 
-Live at **[3d-set-visualizer.vercel.app](https://3d-set-visualizer.vercel.app)**.
-Source in [`visualizer/`](visualizer/).
+Use it at **[setoptics.com/visualizer](https://setoptics.com/visualizer)**.
+Source in [`visualizer/`](visualizer/); run it locally with
+`cd visualizer && npm install && npm run dev`.
 
 ## What's in the box
 
