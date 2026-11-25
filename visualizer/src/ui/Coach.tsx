@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useStore } from '../state/store'
+import { useCoreStore } from '../state/store'
 
 const STEPS = [
   { title: 'Drag the setter & ball', body: 'Drag the blue setter and the yellow ball destination on the court to place where the set starts and ends.' },
@@ -9,36 +9,36 @@ const STEPS = [
 ]
 
 export function Coach() {
-  const showCoach = useStore((s) => s.showCoach)
-  const dismiss = useStore((s) => s.dismissCoach)
-  const [i, setI] = useState(0)
+  const showCoach = useCoreStore((s) => s.showCoach)
+  const dismiss = useCoreStore((s) => s.dismissCoach)
+  const [stepIndex, setStepIndex] = useState(0)
   if (!showCoach) return null
 
-  const last = i === STEPS.length - 1
+  const isLastStep = stepIndex === STEPS.length - 1
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="glass w-[380px] p-6">
         <div className="mb-1 font-mono text-[11px] uppercase tracking-wider text-accent">
           Getting started
         </div>
-        <h2 className="mb-2 text-xl font-normal">{STEPS[i].title}</h2>
-        <p className="mb-5 text-[14px] leading-relaxed text-white/70">{STEPS[i].body}</p>
+        <h2 className="mb-2 text-xl font-normal">{STEPS[stepIndex].title}</h2>
+        <p className="mb-5 text-[14px] leading-relaxed text-white/70">{STEPS[stepIndex].body}</p>
         <div className="flex items-center justify-between">
           <div className="flex gap-1.5">
             {STEPS.map((_, k) => (
               <span
                 key={k}
-                className={`h-1.5 w-1.5 rounded-full ${k === i ? 'bg-accent' : 'bg-white/20'}`}
+                className={`h-1.5 w-1.5 rounded-full ${k === stepIndex ? 'bg-accent' : 'bg-white/20'}`}
               />
             ))}
           </div>
           <div className="flex gap-2">
             <button onClick={dismiss} className="pill">Skip</button>
             <button
-              onClick={() => (last ? dismiss() : setI(i + 1))}
+              onClick={() => (isLastStep ? dismiss() : setStepIndex(stepIndex + 1))}
               className="rounded-full bg-accent px-4 py-2 font-mono text-[12px] text-surface-dark shadow-glow"
             >
-              {last ? "Let's go" : 'Next'}
+              {isLastStep ? "Let's go" : 'Next'}
             </button>
           </div>
         </div>

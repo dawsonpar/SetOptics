@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { useStore } from '../state/store'
+import { useCoreStore } from '../state/store'
 import { FORMAT_KEYS, FORMATS } from '../lib/formats'
 import { PRESETS } from '../lib/presets'
 import { PlayBar } from './PlayBar'
@@ -19,12 +19,12 @@ export function SheetRow({ label, children }: { label: string; children: ReactNo
   )
 }
 
-const Chevron = ({ open }: { open: boolean }) => (
+const Chevron = ({ isOpen }: { isOpen: boolean }) => (
   <svg
     width="12"
     height="12"
     viewBox="0 0 12 12"
-    className={`transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
+    className={`transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
     aria-hidden
   >
     <path
@@ -43,39 +43,39 @@ const Chevron = ({ open }: { open: boolean }) => (
 // which never moves and shares its row with nothing. Closed sheet = clean
 // view. `topRows` lets a host app prepend rows (e.g. planning layers).
 export function ControlSheet({ topRows }: { topRows?: ReactNode }) {
-  const [open, setOpen] = useState(false)
-  const [savedOpen, setSavedOpen] = useState(false)
-  const format = useStore((s) => s.format)
-  const setFormat = useStore((s) => s.setFormat)
-  const loadPreset = useStore((s) => s.loadPreset)
-  const resetSet = useStore((s) => s.resetSet)
+  const [isOpen, setIsOpen] = useState(false)
+  const [isSavedOpen, setIsSavedOpen] = useState(false)
+  const format = useCoreStore((s) => s.format)
+  const setFormat = useCoreStore((s) => s.setFormat)
+  const loadPreset = useCoreStore((s) => s.loadPreset)
+  const resetSet = useCoreStore((s) => s.resetSet)
 
   const toggleSheet = () => {
-    setOpen((v) => {
-      if (v) setSavedOpen(false)
+    setIsOpen((v) => {
+      if (v) setIsSavedOpen(false)
       return !v
     })
   }
 
   return (
     <div className="relative flex w-full flex-col items-center gap-1.5 sm:w-auto">
-      {savedOpen && (
+      {isSavedOpen && (
         <div className="absolute bottom-full z-30 mb-2 w-[min(18rem,calc(100vw-1.5rem))]">
-          <CollectionsPanel onClose={() => setSavedOpen(false)} />
+          <CollectionsPanel onClose={() => setIsSavedOpen(false)} />
         </div>
       )}
 
       <button
         onClick={toggleSheet}
-        aria-expanded={open}
-        aria-label={open ? 'Hide controls' : 'More controls'}
-        title={open ? 'Hide controls' : 'More controls'}
+        aria-expanded={isOpen}
+        aria-label={isOpen ? 'Hide controls' : 'More controls'}
+        title={isOpen ? 'Hide controls' : 'More controls'}
         className="glass rounded-full px-3.5 py-1 text-accent transition hover:text-white"
       >
-        <Chevron open={open} />
+        <Chevron isOpen={isOpen} />
       </button>
 
-      {open && (
+      {isOpen && (
         <div className="glass w-full p-3 sm:w-auto sm:min-w-[26rem]">
           {/* mobile shows ~two rows and scrolls for the rest so the sheet
               never swallows the court; desktop shows everything */}
@@ -113,10 +113,10 @@ export function ControlSheet({ topRows }: { topRows?: ReactNode }) {
               </button>
               <ShareButton />
               <button
-                onClick={() => setSavedOpen((v) => !v)}
-                aria-expanded={savedOpen}
+                onClick={() => setIsSavedOpen((v) => !v)}
+                aria-expanded={isSavedOpen}
                 title="Saved sets and collections"
-                className={`pill ${savedOpen ? 'pill-active' : ''}`}
+                className={`pill ${isSavedOpen ? 'pill-active' : ''}`}
               >
                 Saved
               </button>

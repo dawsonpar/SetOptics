@@ -1,22 +1,22 @@
-import { useStore } from '../state/store'
+import { useCoreStore } from '../state/store'
 
 export function PlayBar() {
-  const playing = useStore((s) => s.playing)
-  const rate = useStore((s) => s.playbackRate)
-  const playhead = useStore((s) => s.playhead)
-  const togglePlay = useStore((s) => s.togglePlay)
-  const setPlaybackRate = useStore((s) => s.setPlaybackRate)
-  const setPlayhead = useStore((s) => s.setPlayhead)
+  const isPlaying = useCoreStore((s) => s.isPlaying)
+  const rate = useCoreStore((s) => s.playbackRate)
+  const playhead = useCoreStore((s) => s.playhead)
+  const togglePlay = useCoreStore((s) => s.togglePlay)
+  const setPlaybackRate = useCoreStore((s) => s.setPlaybackRate)
+  const setPlayhead = useCoreStore((s) => s.setPlayhead)
 
   return (
     <div className="glass flex max-w-[calc(100vw-1.5rem)] items-center gap-2.5 rounded-full px-3 py-2 sm:gap-3.5 sm:px-4">
       <button
         onClick={togglePlay}
-        aria-label={playing ? 'Pause' : 'Play set'}
-        title={`${playing ? 'Pause' : 'Play'} (Space)`}
+        aria-label={isPlaying ? 'Pause' : 'Play set'}
+        title={`${isPlaying ? 'Pause' : 'Play'} (Space)`}
         className="flex h-7 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-surface-dark shadow-glow transition hover:bg-accent/90"
       >
-        {playing ? (
+        {isPlaying ? (
           <svg width="12" height="12" viewBox="0 0 18 18" fill="currentColor">
             <rect x="3" y="2" width="4" height="14" rx="1" />
             <rect x="11" y="2" width="4" height="14" rx="1" />
@@ -35,7 +35,7 @@ export function PlayBar() {
         step={0.001}
         value={playhead}
         onChange={(e) => {
-          if (playing) useStore.getState().setPlaying(false)
+          if (isPlaying) useCoreStore.getState().setPlaying(false)
           setPlayhead(Number(e.target.value))
         }}
         className="w-28 accent-accent sm:w-44"

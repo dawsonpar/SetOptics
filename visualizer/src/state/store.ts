@@ -2,27 +2,27 @@ import { create } from 'zustand'
 import { clamp, Y_MIN, Y_MAX } from '../lib/constants'
 import { boundsFor, DEFAULT_FORMAT, FORMATS, type FormatKey } from '../lib/formats'
 import { DEFAULT_SET, PRESETS } from '../lib/presets'
-import { loadCollections, saveCollections, uid } from '../lib/storage'
+import { loadCollections, saveCollections, createId } from '../lib/storage'
 import { readSetFromUrl } from '../lib/url'
 import type { Collection, HandleId, SavedSet, SetState, Vec3, ViewMode } from '../lib/types'
 
 const COACH_KEY = 'setviz.coachSeen'
 
 const clampVecFor = (v: Vec3, f: FormatKey): Vec3 => {
-  const b = boundsFor(f)
+  const courtBounds = boundsFor(f)
   return {
-    x: clamp(v.x, b.xMin, b.xMax),
+    x: clamp(v.x, courtBounds.xMin, courtBounds.xMax),
     y: clamp(v.y, Y_MIN, Y_MAX),
-    z: clamp(v.z, b.zMin, b.zMax),
+    z: clamp(v.z, courtBounds.zMin, courtBounds.zMax),
   }
 }
 
 // Clamp a whole set into a format's court, e.g. when switching formats or
 // loading a set saved under a different (or unknown) format.
 const clampSetFor = (s: SetState, f: FormatKey): SetState => {
-  const b = boundsFor(f)
+  const courtBounds = boundsFor(f)
   return {
-    setter: { x: clamp(s.setter.x, b.xMin, b.xMax), z: clamp(s.setter.z, b.zMin, b.zMax) },
+    setter: { x: clamp(s.setter.x, courtBounds.xMin, courtBounds.xMax), z: clamp(s.setter.z, courtBounds.zMin, courtBounds.zMax) },
     dest: clampVecFor(s.dest, f),
     peak: clampVecFor(s.peak, f),
     speed: s.speed,
@@ -33,7 +33,7 @@ type Store = {
   set: SetState
   format: FormatKey
   view: ViewMode
-  playing: boolean
+  isPlaying: boolean
   playhead: number
   dragging: HandleId | null
   // Orbit view is camera-first: pieces move there only after being armed by
@@ -70,36 +70,36 @@ type Store = {
   dismissCoach: () => void
 }
 
-const fromUrl = readSetFromUrl()
-const initialFormat = fromUrl?.format ?? DEFAULT_FORMAT
-const initialSet = fromUrl ? clampSetFor(fromUrl.set, initialFormat) : DEFAULT_SET
-const sharedLink = fromUrl !== null
-const coachSeen =
+const sharedSetFromUrl = readSetFromUrl()
+const initialFormat = sharedSetFromUrl?.format ?? DEFAULT_FORMAT
+const initialSet = sharedSetFromUrl ? clampSetFor(sharedSetFromUrl.set, initialFormat) : DEFAULT_SET
+const isSharedLink = sharedSetFromUrl !== null
+const hasSeenCoach =
   typeof window !== 'undefined' && window.localStorage.getItem(COACH_KEY) === '1'
 
-function persist(cols: Collection[]) {
+function persistCollections(cols: Collection[]) {
   saveCollections(cols)
   return cols
 }
 
-export const useStore = create<Store>((setState) => ({
+export const useCoreStore = create<Store>((setState) => ({
   set: initialSet,
   format: initialFormat,
   view: 'front',
-  playing: false,
+  isPlaying: false,
   playhead: 0,
   dragging: null,
   orbitArmed: null,
   collections: loadCollections(),
   activeCollectionId: null,
-  showCoach: !sharedLink && !coachSeen,
+  showCoach: !isSharedLink && !hasSeenCoach,
   playbackRate: 1,
 
   setSetter: (x, z) =>
     setState((s) => {
-      const b = boundsFor(s.format)
+      const courtBounds = boundsFor(s.format)
       return {
-        set: { ...s.set, setter: { x: clamp(x, b.xMin, b.xMax), z: clamp(z, b.zMin, b.zMax) } },
+        set: { ...s.set, setter: { x: clamp(x, courtBounds.xMin, courtBounds.xMax), z: clamp(z, courtBounds.zMin, courtBounds.zMax) } },
       }
     }),
   setDest: (v) => setState((s) => ({ set: { ...s.set, dest: clampVecFor(v, s.format) } })),
@@ -108,17 +108,17 @@ export const useStore = create<Store>((setState) => ({
   setFormat: (format) =>
     setState((s) => {
       if (!FORMATS[format] || format === s.format) return {}
-      return { format, set: clampSetFor(s.set, format), playing: false }
+      return { format, set: clampSetFor(s.set, format), isPlaying: false }
     }),
   setPlaybackRate: (r) => setState({ playbackRate: clamp(r, 0.1, 2) }),
   setView: (view) => setState({ view, orbitArmed: null }),
   togglePlay: () =>
     setState((s) => {
-      if (s.playing) return { playing: false } // pause, keep position
+      if (s.isPlaying) return { isPlaying: false } // pause, keep position
       // start: restart if finished, otherwise resume from current position
-      return { playing: true, playhead: s.playhead >= 1 ? 0 : s.playhead }
+      return { isPlaying: true, playhead: s.playhead >= 1 ? 0 : s.playhead }
     }),
-  setPlaying: (playing) => setState({ playing }),
+  setPlaying: (isPlaying) => setState({ isPlaying }),
   setPlayhead: (playhead) => setState({ playhead }),
   setDragging: (dragging) => setState({ dragging }),
   setOrbitArmed: (orbitArmed) => setState({ orbitArmed }),
@@ -127,7 +127,7 @@ export const useStore = create<Store>((setState) => ({
     setState((s) => {
       const p = PRESETS[s.format].find((x) => x.key === key)
       if (!p) return {}
-      return { set: structuredClone(p.set), playing: false, playhead: 0 }
+      return { set: structuredClone(p.set), isPlaying: false, playhead: 0 }
     }),
   loadSet: (st) =>
     setState((s) => {
@@ -136,7 +136,7 @@ export const useStore = create<Store>((setState) => ({
       return {
         format,
         set: clampSetFor({ setter, dest, peak, speed }, format),
-        playing: false,
+        isPlaying: false,
         playhead: 0,
       }
     }),
@@ -144,15 +144,15 @@ export const useStore = create<Store>((setState) => ({
     setState((s) => {
       const list = PRESETS[s.format]
       const p = list.find((x) => x.key === FORMATS[s.format].defaultPresetKey) ?? list[0]
-      return { set: structuredClone(p.set), playing: false, playhead: 0 }
+      return { set: structuredClone(p.set), isPlaying: false, playhead: 0 }
     }),
 
   setActiveCollection: (activeCollectionId) => setState({ activeCollectionId }),
 
   createCollection: (name) => {
-    const col: Collection = { id: uid(), name: name.trim() || 'Untitled', sets: [] }
+    const col: Collection = { id: createId(), name: name.trim() || 'Untitled', sets: [] }
     setState((s) => ({
-      collections: persist([...s.collections, col]),
+      collections: persistCollections([...s.collections, col]),
       activeCollectionId: col.id,
     }))
     return col.id
@@ -160,7 +160,7 @@ export const useStore = create<Store>((setState) => ({
 
   deleteCollection: (id) =>
     setState((s) => ({
-      collections: persist(s.collections.filter((c) => c.id !== id)),
+      collections: persistCollections(s.collections.filter((c) => c.id !== id)),
       activeCollectionId: s.activeCollectionId === id ? null : s.activeCollectionId,
     })),
 
@@ -168,12 +168,12 @@ export const useStore = create<Store>((setState) => ({
     setState((s) => {
       const saved: SavedSet = {
         ...structuredClone(s.set),
-        id: uid(),
+        id: createId(),
         name: name.trim() || 'Set',
         format: s.format,
       }
       return {
-        collections: persist(
+        collections: persistCollections(
           s.collections.map((c) =>
             c.id === collectionId ? { ...c, sets: [...c.sets, saved] } : c,
           ),
@@ -183,7 +183,7 @@ export const useStore = create<Store>((setState) => ({
 
   deleteSet: (collectionId, setId) =>
     setState((s) => ({
-      collections: persist(
+      collections: persistCollections(
         s.collections.map((c) =>
           c.id === collectionId ? { ...c, sets: c.sets.filter((x) => x.id !== setId) } : c,
         ),

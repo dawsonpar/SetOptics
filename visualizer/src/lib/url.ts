@@ -6,7 +6,7 @@ import type { SetState } from './types'
 // The trailing format token was added with multi-format support; legacy
 // 9-number links decode as 9-man.
 
-const r = (n: number) => Math.round(n * 100) / 100
+const roundTo2Decimals = (n: number) => Math.round(n * 100) / 100
 
 export function encodeSet(s: SetState, format: FormatKey): string {
   const nums = [
@@ -14,7 +14,7 @@ export function encodeSet(s: SetState, format: FormatKey): string {
     s.dest.x, s.dest.y, s.dest.z,
     s.peak.x, s.peak.y, s.peak.z,
     s.speed,
-  ].map(r)
+  ].map(roundTo2Decimals)
   return nums.join(',') + ',' + format
 }
 

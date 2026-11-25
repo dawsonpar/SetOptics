@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { useStore } from '../state/store'
+import { useCoreStore } from '../state/store'
 
-const Chevron = ({ open }: { open: boolean }) => (
+const Chevron = ({ isOpen }: { isOpen: boolean }) => (
   <svg
     width="9"
     height="9"
     viewBox="0 0 10 10"
-    className={`shrink-0 text-muted transition-transform duration-150 ${open ? 'rotate-90' : ''}`}
+    className={`shrink-0 text-muted transition-transform duration-150 ${isOpen ? 'rotate-90' : ''}`}
   >
     <path d="M3 1.5 L7 5 L3 8.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
@@ -15,18 +15,18 @@ const Chevron = ({ open }: { open: boolean }) => (
 // Saved-sets popover content. Visibility is owned by the caller (the Saved
 // chip in the control sheet); this panel only renders its own contents.
 export function CollectionsPanel({ onClose }: { onClose: () => void }) {
-  const collections = useStore((s) => s.collections)
-  const [open, setOpen] = useState<string | null>(null)
+  const collections = useCoreStore((s) => s.collections)
+  const [expandedCollectionId, setExpandedCollectionId] = useState<string | null>(null)
 
-  const createCollection = useStore((s) => s.createCollection)
-  const deleteCollection = useStore((s) => s.deleteCollection)
-  const saveCurrent = useStore((s) => s.saveCurrentToCollection)
-  const deleteSet = useStore((s) => s.deleteSet)
-  const loadSet = useStore((s) => s.loadSet)
+  const createCollection = useCoreStore((s) => s.createCollection)
+  const deleteCollection = useCoreStore((s) => s.deleteCollection)
+  const saveCurrent = useCoreStore((s) => s.saveCurrentToCollection)
+  const deleteSet = useCoreStore((s) => s.deleteSet)
+  const loadSet = useCoreStore((s) => s.loadSet)
 
   const onNew = () => {
     const name = window.prompt('New collection name (e.g. "Hitter: Marcus" or "Sets to work on")')
-    if (name) setOpen(createCollection(name))
+    if (name) setExpandedCollectionId(createCollection(name))
   }
   const onSave = (id: string) => {
     const name = window.prompt('Name this set (e.g. "go ball", "tight pass option")')
@@ -66,12 +66,12 @@ export function CollectionsPanel({ onClose }: { onClose: () => void }) {
             <div key={c.id} className="rounded-xl border border-white/5 bg-surface-dark/40">
               <div className="flex items-center gap-1 px-2 py-1.5">
                 <button
-                  onClick={() => setOpen(open === c.id ? null : c.id)}
-                  title={open === c.id ? 'Collapse' : 'Expand'}
+                  onClick={() => setExpandedCollectionId(expandedCollectionId === c.id ? null : c.id)}
+                  title={expandedCollectionId === c.id ? 'Collapse' : 'Expand'}
                   className="flex flex-1 items-center gap-1.5 overflow-hidden text-left text-[13px] text-white/90"
                 >
                   <span className={c.sets.length === 0 ? 'opacity-30' : ''}>
-                    <Chevron open={open === c.id} />
+                    <Chevron isOpen={expandedCollectionId === c.id} />
                   </span>
                   <span className="truncate">{c.name}</span>
                   <span className="shrink-0 text-muted">· {c.sets.length}</span>
@@ -91,7 +91,7 @@ export function CollectionsPanel({ onClose }: { onClose: () => void }) {
                   ×
                 </button>
               </div>
-              {open === c.id && c.sets.length > 0 && (
+              {expandedCollectionId === c.id && c.sets.length > 0 && (
                 <div className="flex flex-col gap-0.5 px-2 pb-2">
                   {c.sets.map((st) => (
                     <div key={st.id} className="flex items-center gap-1">

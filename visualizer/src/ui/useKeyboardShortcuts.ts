@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import { useStore } from '../state/store'
+import { useCoreStore } from '../state/store'
 
-function isTyping(target: EventTarget | null): boolean {
+function isTextEntryTarget(target: EventTarget | null): boolean {
   const el = target as HTMLElement | null
   if (!el) return false
   return (
@@ -17,8 +17,8 @@ function isTyping(target: EventTarget | null): boolean {
 export function useKeyboardShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (isTyping(e.target)) return
-      const s = useStore.getState()
+      if (isTextEntryTarget(e.target)) return
+      const s = useCoreStore.getState()
       if (e.shiftKey && e.code === 'Digit1') {
         e.preventDefault()
         s.setView('front')
