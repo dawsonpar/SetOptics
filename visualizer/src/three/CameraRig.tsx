@@ -45,7 +45,7 @@ function fitDistance(f: Framing, aspect: number, fovDeg: number): number {
   return Math.max(distH, distW) * PADDING
 }
 
-const cameraGoal = new THREE.Vector3()
+const tmpPos = new THREE.Vector3()
 
 export function CameraRig() {
   const controls = useRef<OrbitControlsImpl>(null)
@@ -127,8 +127,8 @@ export function CameraRig() {
     // fixed view: animate toward the aspect-fitted, zoom-scaled pose
     const f = FRAMINGS[view]
     const d = fitDistance(f, aspect, fovDeg) * zoom.current
-    cameraGoal.copy(f.target).addScaledVector(f.direction, d)
-    camera.position.lerp(cameraGoal, 0.15)
+    tmpPos.copy(f.target).addScaledVector(f.direction, d)
+    camera.position.lerp(tmpPos, 0.15)
     orbitControls.target.lerp(f.target, 0.15)
     orbitControls.enabled = false
     orbitControls.update()

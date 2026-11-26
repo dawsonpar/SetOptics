@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useCoreStore } from '../state/store'
 
-const Chevron = ({ isOpen }: { isOpen: boolean }) => (
+const Chevron = ({ open }: { open: boolean }) => (
   <svg
     width="9"
     height="9"
     viewBox="0 0 10 10"
-    className={`shrink-0 text-muted transition-transform duration-150 ${isOpen ? 'rotate-90' : ''}`}
+    className={`shrink-0 text-muted transition-transform duration-150 ${open ? 'rotate-90' : ''}`}
   >
     <path d="M3 1.5 L7 5 L3 8.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
@@ -71,7 +71,7 @@ export function CollectionsPanel({ onClose }: { onClose: () => void }) {
                   className="flex flex-1 items-center gap-1.5 overflow-hidden text-left text-[13px] text-white/90"
                 >
                   <span className={c.sets.length === 0 ? 'opacity-30' : ''}>
-                    <Chevron isOpen={expandedCollectionId === c.id} />
+                    <Chevron open={expandedCollectionId === c.id} />
                   </span>
                   <span className="truncate">{c.name}</span>
                   <span className="shrink-0 text-muted">· {c.sets.length}</span>

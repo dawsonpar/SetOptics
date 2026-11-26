@@ -19,12 +19,12 @@ export function SheetRow({ label, children }: { label: string; children: ReactNo
   )
 }
 
-const Chevron = ({ isOpen }: { isOpen: boolean }) => (
+const Chevron = ({ open }: { open: boolean }) => (
   <svg
     width="12"
     height="12"
     viewBox="0 0 12 12"
-    className={`transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
+    className={`transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
     aria-hidden
   >
     <path
@@ -72,7 +72,7 @@ export function ControlSheet({ topRows }: { topRows?: ReactNode }) {
         title={isOpen ? 'Hide controls' : 'More controls'}
         className="glass rounded-full px-3.5 py-1 text-accent transition hover:text-white"
       >
-        <Chevron isOpen={isOpen} />
+        <Chevron open={isOpen} />
       </button>
 
       {isOpen && (
