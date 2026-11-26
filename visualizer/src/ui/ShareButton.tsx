@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { useStore } from '../state/store'
+import { useCoreStore } from '../state/store'
 import { shareUrlFor } from '../lib/url'
 
 export function ShareButton() {
-  const set = useStore((s) => s.set)
-  const format = useStore((s) => s.format)
+  const set = useCoreStore((s) => s.set)
+  const format = useCoreStore((s) => s.format)
   const [copied, setCopied] = useState(false)
 
   const onShare = async () => {

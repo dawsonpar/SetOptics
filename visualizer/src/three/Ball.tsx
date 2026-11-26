@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Trail, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
-import { useStore } from '../state/store'
+import { useCoreStore } from '../state/store'
 import { pointAt } from '../lib/arc'
 import { BALLS, FORMAT_BALL } from '../lib/balls'
 
@@ -16,16 +16,16 @@ const spinAxis = new THREE.Vector3()
 export function Ball() {
   const group = useRef<THREE.Group>(null)
   const mesh = useRef<THREE.Mesh>(null)
-  const format = useStore((s) => s.format)
+  const format = useCoreStore((s) => s.format)
   const ball = BALLS[FORMAT_BALL[format]]
   const [albedo, normal] = useTexture([ball.albedo, ball.normal])
   albedo.colorSpace = THREE.SRGBColorSpace
 
   useFrame((_, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05)
-    const s = useStore.getState()
+    const s = useCoreStore.getState()
     let t = s.playhead
-    if (s.playing) {
+    if (s.isPlaying) {
       // duration = set tempo / playback rate (higher rate = faster)
       const duration = Math.max(s.set.speed, 0.15) / s.playbackRate
       t = s.playhead + dt / duration
@@ -39,7 +39,7 @@ export function Ball() {
       const squash = t > 0.92 ? 1 - (t - 0.92) * 3 : 1
       group.current.scale.set(1, Math.max(0.6, squash), 1)
     }
-    if (mesh.current && s.playing) {
+    if (mesh.current && s.isPlaying) {
       // backspin about the horizontal axis perpendicular to travel
       const dx = s.set.dest.x - s.set.setter.x
       const dz = s.set.dest.z - s.set.setter.z

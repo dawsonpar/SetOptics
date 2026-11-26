@@ -1,14 +1,14 @@
 import {
-  ANTENNA_ABOVE, ANTENNA_BAND, BRAND, NET_BAND, NET_BODY_HEIGHT,
+  ANTENNA_HEIGHT_ABOVE_TAPE, ANTENNA_BAND, BRAND, NET_BAND, NET_BODY_HEIGHT,
 } from '../lib/constants'
 import { FORMATS, type Format } from '../lib/formats'
-import { useStore } from '../state/store'
+import { useCoreStore } from '../state/store'
 
 // A red/white striped antenna at a sideline, from the net bottom up to 80cm
 // above the net tape.
 function Antenna({ x, format }: { x: number; format: Format }) {
   const netBottom = format.netHeight - NET_BODY_HEIGHT
-  const top = format.netHeight + ANTENNA_ABOVE
+  const top = format.netHeight + ANTENNA_HEIGHT_ABOVE_TAPE
   const total = top - netBottom
   const bands = Math.round(total / ANTENNA_BAND)
   const band = total / bands
@@ -31,7 +31,7 @@ function Antenna({ x, format }: { x: number; format: Format }) {
 // Net plane at Z = 0, sized by the active format: body spans pole to pole,
 // solid top tape, posts at the ends, antennas above the sidelines.
 export function Net() {
-  const format = useStore((s) => FORMATS[s.format])
+  const format = useCoreStore((s) => FORMATS[s.format])
   const width = format.poleX * 2
   const antennaX = format.courtWidth / 2
   return (

@@ -1,7 +1,7 @@
 import { Line } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
-import { useStore } from '../state/store'
+import { useCoreStore } from '../state/store'
 import { apexPoint, minApexHeight } from '../lib/arc'
 import { BRAND, CONTACT_HEIGHT } from '../lib/constants'
 import type { HandleId } from '../lib/types'
@@ -19,23 +19,23 @@ const noRaycast = () => null
 // Orbit view is camera-first: only the setter moves there, and only after a
 // double-click arms it; the drag then runs on the floor plane (X + depth).
 function useDragHandlers(id: HandleId) {
-  const view = useStore((s) => s.view)
-  const armed = useStore((s) => s.orbitArmed === 'setter' && id === 'setter')
-  const editable = view !== 'orbit' || armed
+  const view = useCoreStore((s) => s.view)
+  const isArmed = useCoreStore((s) => s.orbitArmed === 'setter' && id === 'setter')
+  const isEditable = view !== 'orbit' || isArmed
 
   const onPointerDown = (e: ThreeEvent<PointerEvent>) => {
-    if (!editable) return
+    if (!isEditable) return
     e.stopPropagation()
     ;(e.target as Element).setPointerCapture(e.pointerId)
-    useStore.getState().setDragging(id)
+    useCoreStore.getState().setDragging(id)
     document.body.style.cursor = 'grabbing'
   }
 
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
-    const s = useStore.getState()
+    const s = useCoreStore.getState()
     if (s.dragging !== id) return
     e.stopPropagation()
-    const cur =
+    const handlePoint =
       id === 'setter'
         ? new THREE.Vector3(s.set.setter.x, 0, s.set.setter.z)
         : id === 'dest'
@@ -44,21 +44,21 @@ function useDragHandlers(id: HandleId) {
 
     if (s.view === 'orbit') {
       // armed setter: move freely on the floor plane, clamped by the store
-      plane.setFromNormalAndCoplanarPoint(UP_NORMAL, cur)
+      plane.setFromNormalAndCoplanarPoint(UP_NORMAL, handlePoint)
       const hit = new THREE.Vector3()
       if (!e.ray.intersectPlane(plane, hit)) return
       if (id === 'setter') s.setSetter(hit.x, hit.z)
       return
     }
 
-    const front = s.view === 'front'
-    plane.setFromNormalAndCoplanarPoint(front ? FRONT_NORMAL : SIDE_NORMAL, cur)
+    const isFrontView = s.view === 'front'
+    plane.setFromNormalAndCoplanarPoint(isFrontView ? FRONT_NORMAL : SIDE_NORMAL, handlePoint)
     const hit = new THREE.Vector3()
     if (!e.ray.intersectPlane(plane, hit)) return
     if (id === 'setter') {
-      front ? s.setSetter(hit.x, s.set.setter.z) : s.setSetter(s.set.setter.x, hit.z)
+      isFrontView ? s.setSetter(hit.x, s.set.setter.z) : s.setSetter(s.set.setter.x, hit.z)
     } else if (id === 'dest') {
-      front ? s.setDest({ x: hit.x, y: hit.y, z: s.set.dest.z }) : s.setDest({ x: s.set.dest.x, y: hit.y, z: hit.z })
+      isFrontView ? s.setDest({ x: hit.x, y: hit.y, z: s.set.dest.z }) : s.setDest({ x: s.set.dest.x, y: hit.y, z: hit.z })
     } else {
       // peak: midpoint-locked, vertical only, never below the higher endpoint
       const a = apexPoint(s.set)
@@ -67,20 +67,20 @@ function useDragHandlers(id: HandleId) {
   }
 
   const onPointerUp = (e: ThreeEvent<PointerEvent>) => {
-    if (useStore.getState().dragging !== id) return
+    if (useCoreStore.getState().dragging !== id) return
     e.stopPropagation()
     try {
       ;(e.target as Element).releasePointerCapture(e.pointerId)
     } catch {
       /* capture may already be gone */
     }
-    useStore.getState().setDragging(null)
+    useCoreStore.getState().setDragging(null)
     document.body.style.cursor = 'auto'
   }
 
-  const onPointerOver = () => editable && (document.body.style.cursor = 'grab')
+  const onPointerOver = () => isEditable && (document.body.style.cursor = 'grab')
   const onPointerOut = () => {
-    if (useStore.getState().dragging !== id) document.body.style.cursor = 'auto'
+    if (useCoreStore.getState().dragging !== id) document.body.style.cursor = 'auto'
   }
 
   return { onPointerDown, onPointerMove, onPointerUp, onPointerOver, onPointerOut }
@@ -89,11 +89,11 @@ function useDragHandlers(id: HandleId) {
 // Faint cone arrows hinting which way the setter drags in the active view.
 // In orbit they appear only once the setter is armed, showing both axes.
 function DragArrows() {
-  const view = useStore((s) => s.view)
-  const dragging = useStore((s) => s.dragging)
-  const armed = useStore((s) => s.orbitArmed === 'setter')
+  const view = useCoreStore((s) => s.view)
+  const dragging = useCoreStore((s) => s.dragging)
+  const isArmed = useCoreStore((s) => s.orbitArmed === 'setter')
   if (dragging) return null
-  if (view === 'orbit' && !armed) return null
+  if (view === 'orbit' && !isArmed) return null
   // front: left/right along X; side: toward/away the net along Z; orbit: both
   const X_DIRS: [number, number, number, [number, number, number]][] = [
     [0.85, 0.16, 0, [0, 0, -Math.PI / 2]],
@@ -121,18 +121,18 @@ function DragArrows() {
 // release height, and faint drag-direction arrows. Double-clicking in orbit
 // arms it for repositioning.
 export function SetterHandle() {
-  const setter = useStore((s) => s.set.setter)
-  const h = useDragHandlers('setter')
+  const setter = useCoreStore((s) => s.set.setter)
+  const dragHandlers = useDragHandlers('setter')
   const armSetter = () => {
-    if (useStore.getState().view === 'orbit') useStore.getState().setOrbitArmed('setter')
+    if (useCoreStore.getState().view === 'orbit') useCoreStore.getState().setOrbitArmed('setter')
   }
   return (
     <group position={[setter.x, 0, setter.z]}>
-      <mesh position={[0, 0.55, 0]} castShadow onDoubleClick={armSetter} {...h}>
+      <mesh position={[0, 0.55, 0]} castShadow onDoubleClick={armSetter} {...dragHandlers}>
         <capsuleGeometry args={[0.22, 0.7, 6, 14]} />
         <meshStandardMaterial color={BRAND.setter} emissive={BRAND.setter} emissiveIntensity={0.25} />
       </mesh>
-      <mesh position={[0, 1.5, 0]} castShadow onDoubleClick={armSetter} {...h}>
+      <mesh position={[0, 1.5, 0]} castShadow onDoubleClick={armSetter} {...dragHandlers}>
         <sphereGeometry args={[0.2, 24, 24]} />
         <meshStandardMaterial color={BRAND.setter} emissive={BRAND.setter} emissiveIntensity={0.3} />
       </mesh>
@@ -152,11 +152,11 @@ export function SetterHandle() {
 }
 
 export function DestHandle() {
-  const v = useStore((s) => s.set.dest)
-  const h = useDragHandlers('dest')
+  const dest = useCoreStore((s) => s.set.dest)
+  const dragHandlers = useDragHandlers('dest')
   return (
     <group>
-      <mesh position={[v.x, v.y, v.z]} castShadow {...h}>
+      <mesh position={[dest.x, dest.y, dest.z]} castShadow {...dragHandlers}>
         <sphereGeometry args={[0.2, 24, 24]} />
         <meshStandardMaterial color={BRAND.ball} emissive={BRAND.ball} emissiveIntensity={0.5} />
       </mesh>
@@ -165,12 +165,12 @@ export function DestHandle() {
 }
 
 export function PeakHandle() {
-  const set = useStore((s) => s.set)
+  const set = useCoreStore((s) => s.set)
   const apex = apexPoint(set)
-  const h = useDragHandlers('peak')
+  const dragHandlers = useDragHandlers('peak')
   return (
     <group>
-      <mesh position={[apex.x, apex.y, apex.z]} castShadow {...h}>
+      <mesh position={[apex.x, apex.y, apex.z]} castShadow {...dragHandlers}>
         <sphereGeometry args={[0.096, 24, 24]} />
         <meshStandardMaterial color={BRAND.accent} emissive={BRAND.accent} emissiveIntensity={0.5} />
       </mesh>

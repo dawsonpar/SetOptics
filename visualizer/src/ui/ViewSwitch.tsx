@@ -1,4 +1,4 @@
-import { useStore } from '../state/store'
+import { useCoreStore } from '../state/store'
 import type { ViewMode } from '../lib/types'
 
 const VIEWS: { key: ViewMode; label: string; hint: string }[] = [
@@ -8,8 +8,8 @@ const VIEWS: { key: ViewMode; label: string; hint: string }[] = [
 ]
 
 export function ViewSwitch() {
-  const view = useStore((s) => s.view)
-  const setView = useStore((s) => s.setView)
+  const view = useCoreStore((s) => s.view)
+  const setView = useCoreStore((s) => s.setView)
   return (
     <div className="glass flex gap-1 rounded-full p-1">
       {VIEWS.map((v) => (

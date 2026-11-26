@@ -8,7 +8,7 @@ export const CONTACT_HEIGHT = 2.2 // setter hands height (ball start)
 // Net visual proportions (heights come from the active format).
 export const NET_BODY_HEIGHT = 1.8 // net mesh hangs this far below the tape
 export const NET_BAND = 0.1 // visual net tape thickness
-export const ANTENNA_ABOVE = 1.6 // antenna rises this far above the tape (8 bands)
+export const ANTENNA_HEIGHT_ABOVE_TAPE = 1.6 // antenna rises this far above the tape (8 bands)
 export const ANTENNA_BAND = 0.2 // visual stripe height
 
 // Drag bounds that are about arc physics, not court size.
